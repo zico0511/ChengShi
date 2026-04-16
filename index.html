@@ -1,0 +1,281 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>誠石不動產 - 台中專業租屋網</title>
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft JhengHei,sans-serif}
+    body{background:#f5f5f5}
+    .top{background:#222;color:#fff;padding:10px 15px;font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap}
+    .header{background:#fff;border-bottom:1px solid #ddd;padding:20px;display:flex;justify-content:space-between;align-items:center}
+    .logo{font-size:26px;font-weight:700;color:#c41e3a}
+    .license{font-size:13px;color:#555;line-height:1.4}
+    .nav{background:#c41e3a}
+    .nav-inner{max-width:1200px;margin:auto;display:flex;flex-wrap:wrap}
+    .nav a{color:#fff;padding:14px 18px;text-decoration:none}
+    .nav a:hover{background:#a01830}
+    .container{max-width:1200px;margin:25px auto;padding:0 15px}
+    .search{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px #00000010}
+    .search-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
+    .item label{font-size:13px;margin-bottom:5px;display:block}
+    .item select{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px}
+    .btn-red{background:#c41e3a;color:#fff;border:none;padding:10px 20px;border-radius:6px;margin-top:10px;cursor:pointer}
+    .house-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
+    .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.05)}
+    .media img, .media video{width:100%;height:220px;object-fit:cover;cursor:pointer}
+    .card-body{padding:16px}
+    .price{font-size:22px;font-weight:700;color:#c41e3a;margin-bottom:6px}
+    .title{font-size:16px;font-weight:700;margin-bottom:8px}
+    .addr{font-size:12px;color:#c41e3a;background:#ffeef0;padding:4px 6px;border-radius:4px;margin:6px 0}
+    .detail{font-size:13px;color:#666;margin:4px 0}
+    .tag{background:#f0f3f5;padding:3px 6px;border-radius:4px;font-size:12px;margin-right:4px}
+    .map-box{margin-top:10px}
+    .map-box a{display:block;background:#e3f2fd;color:#0277bd;padding:10px 12px;border-radius:8px;text-decoration:none;margin-top:8px}
+    .footer{background:#222;color:#fff;text-align:center;padding:25px 15px;font-size:13px;margin-top:30px}
+    .thumb-box{display:flex;gap:6px;overflow-x:auto;padding:8px;background:#f8f9fa}
+    .thumb{width:50px;height:50px;object-fit:cover;border-radius:4px;cursor:pointer}
+    .lightbox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:9999}
+    .lightbox img, .lightbox video{max-width:90%;max-height:90%}
+    .lightbox .close{position:absolute;top:20px;right:20px;color:#fff;font-size:30px;cursor:pointer}
+    .lightbox .prev,.lightbox .next{position:absolute;color:#fff;font-size:40px;cursor:pointer;padding:20px}
+    .lightbox .prev{left:20px}
+    .lightbox .next{right:20px}
+    .hide{display:none}
+  </style>
+</head>
+<body>
+
+<div class="top">
+  <div>📞 0936-890-239 | LINE：zico0511</div>
+  <div>誠石不動產 台中專業租屋</div>
+</div>
+
+<div class="header">
+  <div class="logo">誠石不動產</div>
+  <div class="license">
+    (113)登字第458761<br>
+    中市仲商證字號第J0103號<br>
+    (103)中市經紀字號第01361號
+  </div>
+</div>
+
+<div class="nav">
+  <div class="nav-inner">
+    <a href="#all">物件列表</a>
+    <a href="admin.html" target="_blank">管理後台</a>
+    <a href="tel:0936890239">立即聯絡</a>
+  </div>
+</div>
+
+<div class="container">
+  <div class="search" id="all">
+    <div class="search-grid">
+      <div class="item">
+        <label>行政區</label>
+        <select id="area">
+          <option value="">全部</option>
+          <option value="中區">中區</option>
+          <option value="東區">東區</option>
+          <option value="南區">南區</option>
+          <option value="西區">西區</option>
+          <option value="北區">北區</option>
+          <option value="北屯">北屯</option>
+          <option value="西屯">西屯</option>
+          <option value="南屯">南屯</option>
+          <option value="太平">太平</option>
+          <option value="大里">大里</option>
+          <option value="霧峰">霧峰</option>
+          <option value="烏日">烏日</option>
+          <option value="豐原">豐原</option>
+          <option value="后里">后里</option>
+          <option value="石岡">石岡</option>
+          <option value="東勢">東勢</option>
+          <option value="和平">和平</option>
+          <option value="新社">新社</option>
+          <option value="潭子">潭子</option>
+          <option value="大雅">大雅</option>
+          <option value="神岡">神岡</option>
+          <option value="大肚">大肚</option>
+          <option value="沙鹿">沙鹿</option>
+          <option value="龍井">龍井</option>
+          <option value="梧棲">梧棲</option>
+          <option value="清水">清水</option>
+          <option value="大甲">大甲</option>
+          <option value="外埔">外埔</option>
+          <option value="大安">大安</option>
+        </select>
+      </div>
+      <div class="item">
+        <label>租金</label>
+        <select id="price">
+          <option value="">不限</option>
+          <option value="10000">1萬以內</option>
+          <option value="20000">1-2萬</option>
+          <option value="30000">2-3萬</option>
+          <option value="50000">3-5萬</option>
+          <option value="999999">5萬以上</option>
+        </select>
+      </div>
+      <div class="item">
+        <label>型態</label>
+        <select id="type">
+          <option value="">不限</option>
+          <option value="套房">套房</option>
+          <option value="1房">1房</option>
+          <option value="2房">2房</option>
+          <option value="3房">3房</option>
+          <option value="4房">4房</option>
+          <option value="透天">透天</option>
+          <option value="別墅">別墅</option>
+          <option value="廠房">廠房</option>
+          <option value="店面">店面</option>
+        </select>
+      </div>
+      <div class="item">
+        <label>車位</label>
+        <select id="car">
+          <option value="">不限</option>
+          <option value="平面車位">平面車位</option>
+          <option value="機械車位">機械車位</option>
+        </select>
+      </div>
+      <div class="item">
+        <label>寵物</label>
+        <select id="pet">
+          <option value="">不限</option>
+          <option value="可貓">可貓</option>
+          <option value="可狗">可狗</option>
+          <option value="任何寵物">任何寵物</option>
+        </select>
+      </div>
+    </div>
+    <button class="btn-red" onclick="filter()">篩選物件</button>
+  </div>
+
+  <div class="house-grid" id="houseList"></div>
+</div>
+
+<div class="footer">
+  <p>誠石不動產 © 2025 版權所有</p>
+  <p>台中市沙鹿區向上路六段736號</p>
+</div>
+
+<div id="lightbox" class="hide">
+  <span class="close" onclick="closeLB()">×</span>
+  <span class="prev" onclick="prev()">‹</span>
+  <img id="lbImg" class="hide">
+  <video id="lbVideo" class="hide" controls></video>
+  <span class="next" onclick="next()">›</span>
+</div>
+
+<script>
+let currentList = [], currentIndex = 0, currentType = '';
+
+function load(){
+  const data = JSON.parse(localStorage.getItem("houses")||"[]");
+  const box = document.getElementById("houseList");
+  box.innerHTML = "";
+  data.forEach((item,i)=>{
+    const c = document.createElement("div");
+    c.className = "card";
+    c.dataset.area = item.area;
+    c.dataset.price = item.rent;
+    c.dataset.type = item.type;
+    c.dataset.car = item.car;
+    c.dataset.pet = item.pet;
+
+    let media = '';
+    if(item.video){
+      media = `<video src="${item.video}" controls height="220"></video>`;
+    }else if(item.imgs?.length){
+      media = `<img src="${item.imgs[0]}" onclick="openMedia(${i},'img',0)">`;
+    }
+
+    let thumbs = '';
+    if(item.imgs?.length){
+      thumbs+='<div class="thumb-box">';
+      item.imgs.forEach((src,j)=>{
+        thumbs+=`<img src="${src}" class="thumb" onclick="openMedia(${i},'img',${j})">`;
+      });
+      thumbs+='</div>';
+    }
+
+    let mapLink = "";
+    if(item.addr){
+      const gmap = "https://www.google.com.tw/maps/place/" + encodeURIComponent(item.addr);
+      mapLink = `<a href="${gmap}" target="_blank">📍 查看房屋地圖位置</a>`;
+    }
+
+    c.innerHTML = `
+      <div class="media">${media}</div>
+      ${thumbs}
+      <div class="card-body">
+        <div class="price">${parseInt(item.rent).toLocaleString()} 元/月</div>
+        <div class="title">${item.title}</div>
+        <div class="addr">${item.addr}</div>
+        <div class="detail">${item.type}｜${item.ping}坪</div>
+        <div class="detail">車位：${item.car}｜寵物：${item.pet}</div>
+        <div class="map-box">${mapLink}</div>
+      </div>`;
+    box.appendChild(c);
+  });
+}
+
+function filter(){
+  const a = document.getElementById("area").value;
+  const p = document.getElementById("price").value;
+  const t = document.getElementById("type").value;
+  const car = document.getElementById("car").value;
+  const pet = document.getElementById("pet").value;
+  document.querySelectorAll(".card").forEach(c=>{
+    let ok = true;
+    if(a && c.dataset.area!==a) ok=false;
+    if(p && parseInt(c.dataset.price)>parseInt(p)) ok=false;
+    if(t && !c.dataset.type.includes(t)) ok=false;
+    if(car && c.dataset.car!==car) ok=false;
+    if(pet && c.dataset.pet!==pet) ok=false;
+    c.style.display = ok?"block":"none";
+  });
+}
+
+function openMedia(idx,type,subIdx){
+  const d = JSON.parse(localStorage.getItem("houses"));
+  currentList = d[idx];
+  currentIndex = subIdx;
+  currentType = type;
+  const lbImg = document.getElementById("lbImg");
+  const lbVid = document.getElementById("lbVideo");
+  if(type==='img'){
+    lbImg.src = currentList.imgs[subIdx];
+    lbImg.classList.remove("hide");
+    lbVid.classList.add("hide");
+  }else{
+    lbVid.src = currentList.video;
+    lbVid.classList.remove("hide");
+    lbImg.classList.add("hide");
+  }
+  document.getElementById("lightbox").classList.remove("hide");
+}
+
+function closeLB(){
+  document.getElementById("lightbox").classList.add("hide");
+  document.getElementById("lbVideo").pause();
+}
+
+function prev(){
+  if(currentType!=='img')return;
+  currentIndex = (currentIndex-1 + currentList.imgs.length) % currentList.imgs.length;
+  document.getElementById("lbImg").src = currentList.imgs[currentIndex];
+}
+
+function next(){
+  if(currentType!=='img')return;
+  currentIndex = (currentIndex+1) % currentList.imgs.length;
+  document.getElementById("lbImg").src = currentList.imgs[currentIndex];
+}
+
+window.onload=load;
+</script>
+</body>
+</html>

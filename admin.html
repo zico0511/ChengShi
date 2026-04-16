@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理後台 - 誠石不動產</title>
+  <style>
+    *{box-sizing:border-box;font-family:Microsoft JhengHei,sans-serif}
+    body{background:#f8f9fa;padding:20px}
+    .wrap{max-width:800px;margin:auto;background:#fff;padding:30px;border-radius:12px}
+    h2{color:#c41e3a;margin-bottom:20px}
+    .form-grid{display:grid;grid-template-columns:1fr 1fr;gap:12px;margin-bottom:15px}
+    .item{margin-bottom:10px}
+    label{display:block;margin-bottom:5px;font-weight:bold}
+    input,select{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px}
+    .full{grid-column:1/-1}
+    button{background:#c41e3a;color:#fff;border:none;padding:12px 20px;border-radius:6px;cursor:pointer;width:100%}
+    #pwBox{margin-bottom:20px}
+    .hide{display:none}
+  </style>
+</head>
+<body>
+<div class="wrap">
+  <h2>📝 管理後台 - 新增房屋</h2>
+  <div id="pwBox">
+    <input type="password" id="pw" placeholder="輸入管理密碼">
+    <button onclick="checkPw()">驗證進入</button>
+  </div>
+
+  <div id="formArea" class="hide">
+    <div class="form-grid">
+      <div class="item full">
+        <label>📷 上傳圖片（可多張）</label>
+        <input type="file" id="imgs" accept="image/*" multiple>
+      </div>
+      <div class="item full">
+        <label>🎬 上傳影片（MP4）</label>
+        <input type="file" id="video" accept="video/mp4">
+      </div>
+      <div class="item">
+        <label>標題</label>
+        <input type="text" id="title" placeholder="例：沙鹿 2房 車位">
+      </div>
+      <div class="item">
+        <label>租金（元/月）</label>
+        <input type="number" id="rent">
+      </div>
+      <div class="item">
+        <label>行政區</label>
+        <select id="area">
+          <option value="中區">中區</option>
+          <option value="東區">東區</option>
+          <option value="南區">南區</option>
+          <option value="西區">西區</option>
+          <option value="北區">北區</option>
+          <option value="北屯">北屯</option>
+          <option value="西屯">西屯</option>
+          <option value="南屯">南屯</option>
+          <option value="太平">太平</option>
+          <option value="大里">大里</option>
+          <option value="霧峰">霧峰</option>
+          <option value="烏日">烏日</option>
+          <option value="豐原">豐原</option>
+          <option value="后里">后里</option>
+          <option value="石岡">石岡</option>
+          <option value="東勢">東勢</option>
+          <option value="和平">和平</option>
+          <option value="新社">新社</option>
+          <option value="潭子">潭子</option>
+          <option value="大雅">大雅</option>
+          <option value="神岡">神岡</option>
+          <option value="大肚">大肚</option>
+          <option value="沙鹿">沙鹿</option>
+          <option value="龍井">龍井</option>
+          <option value="梧棲">梧棲</option>
+          <option value="清水">清水</option>
+          <option value="大甲">大甲</option>
+          <option value="外埔">外埔</option>
+          <option value="大安">大安</option>
+        </select>
+      </div>
+      <div class="item">
+        <label>型態</label>
+        <select id="type">
+          <option value="套房">套房</option>
+          <option value="1房">1房</option>
+          <option value="2房">2房</option>
+          <option value="3房">3房</option>
+          <option value="4房">4房</option>
+          <option value="透天">透天</option>
+          <option value="別墅">別墅</option>
+          <option value="廠房">廠房</option>
+          <option value="店面">店面</option>
+        </select>
+      </div>
+      <div class="item">
+        <label>車位</label>
+        <select id="car">
+          <option value="無車位">無車位</option>
+          <option value="平面車位">平面車位</option>
+          <option value="機械車位">機械車位</option>
+        </select>
+      </div>
+      <div class="item">
+        <label>寵物</label>
+        <select id="pet">
+          <option value="不可寵">不可寵</option>
+          <option value="可貓">可貓</option>
+          <option value="可狗">可狗</option>
+          <option value="任何寵物">任何寵物</option>
+        </select>
+      </div>
+      <div class="item">
+        <label>坪數</label>
+        <input type="text" id="ping" placeholder="14">
+      </div>
+      <div class="item full">
+        <label>🚩 房屋詳細地址</label>
+        <input type="text" id="addr" placeholder="例：台中市沙鹿區中山路100號">
+      </div>
+    </div>
+    <button onclick="addHouse()">✅ 新增上架</button>
+  </div>
+</div>
+
+<script>
+const PW = "1234";
+
+function checkPw(){
+  if(document.getElementById("pw").value===PW){
+    document.getElementById("pwBox").classList.add("hide");
+    document.getElementById("formArea").classList.remove("hide");
+    alert("驗證成功");
+  }else{
+    alert("密碼錯誤");
+  }
+}
+
+function addHouse(){
+  const title = document.getElementById("title").value;
+  const rent = document.getElementById("rent").value;
+  const addr = document.getElementById("addr").value;
+  if(!title||!rent||!addr){alert("請填完整資訊");return;}
+
+  const imgFiles = document.getElementById("imgs").files;
+  const videoFile = document.getElementById("video").files[0];
+
+  const promises = [];
+  for(let i=0;i<imgFiles.length;i++){
+    promises.push(new Promise(res=>{
+      const fr = new FileReader();
+      fr.onload=e=>res(e.target.result);
+      fr.readAsDataURL(imgFiles[i]);
+    }));
+  }
+
+  let video64 = "";
+  if(videoFile){
+    const vPromise = new Promise(res=>{
+      const fr = new FileReader();
+      fr.onload=e=>res(e.target.result);
+      fr.readAsDataURL(videoFile);
+    });
+    promises.push(vPromise);
+  }
+
+  Promise.all(promises).then(arr=>{
+    if(videoFile) video64 = arr.pop();
+    const imgs = arr;
+    const old = JSON.parse(localStorage.getItem("houses")||"[]");
+    old.push({
+      imgs,video:video64,title,rent,
+      area:document.getElementById("area").value,
+      type:document.getElementById("type").value,
+      car:document.getElementById("car").value,
+      pet:document.getElementById("pet").value,
+      ping:document.getElementById("ping").value,
+      addr:addr
+    });
+    localStorage.setItem("houses",JSON.stringify(old));
+    alert("上架成功！");
+    location.reload();
+  });
+}
+</script>
+</body>
+</html>
