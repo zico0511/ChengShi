@@ -56,8 +56,14 @@
     .no-data { text-align:center; padding:40px 20px; color:var(--color-text-light); }
 
     .img-preview { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:99999; }
-    .img-preview img { max-width:90%; max-height:90%; border-radius: 8px; user-select: none; }
+    .img-preview-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+    .img-preview img { max-width:90%; max-height:90%; border-radius: 8px; user-select: none; transition: opacity 0.3s ease; opacity: 1; z-index: 2; }
+    .img-preview img.loading { opacity: 0; }
     .img-preview .close { position:absolute; top:20px; right:30px; color:#fff; font-size:40px; cursor:pointer; font-weight: bold; z-index: 100; }
+    
+    /* Loading Spinner */
+    .spinner { position: absolute; width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top: 5px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; z-index: 1; }
+    @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
     .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); color: #fff; font-size: 50px; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 8px; user-select: none; transition: background 0.3s; }
     .nav-btn:hover { background: rgba(255,255,255,0.2); }
     .prev-btn { left: 20px; }
@@ -83,7 +89,10 @@
 <div class="img-preview" id="imgPreview" onclick="closeImgPreview()">
   <span class="close">&times;</span>
   <div class="nav-btn prev-btn" onclick="event.stopPropagation(); changeImg(-1)">&#10094;</div>
-  <img id="previewImg" src="" onclick="event.stopPropagation()">
+  <div class="img-preview-container" onclick="event.stopPropagation()">
+    <div class="spinner" id="imgSpinner"></div>
+    <img id="previewImg" src="" class="loading">
+  </div>
   <div class="nav-btn next-btn" onclick="event.stopPropagation(); changeImg(1)">&#10095;</div>
 </div>
 
@@ -272,10 +281,37 @@
     
     const navBtns = document.querySelectorAll('.nav-btn');
     navBtns.forEach(btn => btn.style.display = currentPhotoList.length > 1 ? 'block' : 'none');
+    
+    // 預加載下一張照片
+    preloadNextImage();
   }
 
   function updatePreviewImg() {
-    document.getElementById('previewImg').src = currentPhotoList[currentPhotoIdx];
+    const img = document.getElementById('previewImg');
+    const spinner = document.getElementById('imgSpinner');
+    
+    img.classList.add('loading');
+    spinner.style.display = 'block';
+    
+    img.src = currentPhotoList[currentPhotoIdx];
+    
+    img.onload = function() {
+      img.classList.remove('loading');
+      spinner.style.display = 'none';
+      preloadNextImage(); // 載入完當前這張，順便預載下一張
+    };
+  }
+
+  function preloadNextImage() {
+    if (currentPhotoList.length <= 1) return;
+    const nextIdx = (currentPhotoIdx + 1) % currentPhotoList.length;
+    const prevIdx = (currentPhotoIdx - 1 + currentPhotoList.length) % currentPhotoList.length;
+    
+    // 預加載前後各一張
+    [nextIdx, prevIdx].forEach(idx => {
+      const img = new Image();
+      img.src = currentPhotoList[idx];
+    });
   }
 
   function changeImg(step) {
