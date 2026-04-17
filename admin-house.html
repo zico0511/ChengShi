@@ -248,15 +248,6 @@
         </div>
 
         <div class="form-group full-width">
-          <label class="form-label">影片上傳或外部連結 (建議使用 YouTube/Google Drive 連結，省空間且畫質高)</label>
-          <div style="display: flex; gap: 10px; margin-bottom: 5px;">
-            <input type="file" id="videoFile" class="form-control" accept="video/*" style="flex: 1;">
-            <input type="text" id="videoUrl" class="form-control" placeholder="或在此貼上影片連結 (如 YouTube/雲端硬碟)" style="flex: 2;">
-          </div>
-          <div id="videoPreview" style="margin-top: 10px;"></div>
-        </div>
-
-        <div class="form-group full-width">
           <label class="form-label">詳細說明</label>
           <textarea id="desc" class="form-control" placeholder="請輸入房源詳細介紹..."></textarea>
         </div>
@@ -354,11 +345,10 @@
     }
 
     let currentPhotos = [];
-    let currentVideo = "";
 
     async function saveHouses(houseData, id = null) {
       if (isUploading) {
-        alert("檔案還在同步中，請稍候...");
+        alert("照片還在上傳中，請稍候再點擊儲存！");
         return;
       }
       
@@ -381,8 +371,8 @@
         alert('✅ 房源已成功儲存到雲端！');
         closeModal();
       } catch (e) {
-        console.error(e);
-        alert('❌ 儲存時發生錯誤：' + e.message);
+        console.error("儲存失敗:", e);
+        alert('❌ 儲存時發生錯誤，請檢查 Firebase 設定或網路。詳細錯誤：' + e.message);
       } finally {
         setBtnLoading(false);
       }
@@ -390,13 +380,18 @@
 
     // 輔助函數：將檔案上傳到 Firebase Storage
     async function uploadFile(file, path) {
-      const fileName = Date.now() + '_' + (file.name || 'upload.jpg');
-      const storageRef = storage.ref(path + '/' + fileName);
-      const snapshot = await storageRef.put(file);
-      return await snapshot.ref.getDownloadURL();
+      try {
+        const fileName = Date.now() + '_' + (file.name || 'upload.jpg');
+        const storageRef = storage.ref(path + '/' + fileName);
+        const snapshot = await storageRef.put(file);
+        return await snapshot.ref.getDownloadURL();
+      } catch (err) {
+        console.error("上傳檔案失敗:", err);
+        throw err;
+      }
     }
 
-    // 照片選擇處理 (改為立即上傳到 Storage 以節省資料庫空間)
+    // 照片選擇處理 (優化為並行上傳與詳細進度)
     document.getElementById('photoFiles').addEventListener('change', async function(e) {
       const files = Array.from(e.target.files);
       if (files.length === 0) return;
@@ -407,55 +402,44 @@
       const preview = document.getElementById('photoPreview');
       const loadingIndicator = document.createElement('div');
       loadingIndicator.id = "photoLoading";
-      loadingIndicator.style.cssText = "color: #667eea; font-size: 0.8rem; width: 100%; padding: 10px; font-weight: bold;";
-      loadingIndicator.textContent = "⏳ 正在處理與優化照片上傳中...";
+      loadingIndicator.style.cssText = "color: #667eea; font-size: 0.9rem; width: 100%; padding: 15px; font-weight: bold; background: #f0f4ff; border-radius: 8px; margin: 10px 0; border: 1px dashed #667eea;";
       preview.appendChild(loadingIndicator);
 
-      for (const file of files) {
-        try {
-          // 先壓縮再上傳
-          const compressedBlob = await compressImage(file);
-          const url = await uploadFile(compressedBlob, 'photos');
-          currentPhotos.push(url);
-          renderPhotoPreview(); // 每傳一張就預覽一次
-        } catch (err) {
-          console.error(err);
-          alert('照片上傳失敗：' + err.message);
-        }
-      }
+      let completed = 0;
+      const total = files.length;
       
-      loadingIndicator.remove();
-      isUploading = false;
-      setBtnLoading(false);
-    });
+      loadingIndicator.textContent = `🚀 準備處理 ${total} 張照片...`;
 
-    // 影片選擇處理
-    document.getElementById('videoFile').addEventListener('change', async function(e) {
-      const file = e.target.files[0];
-      if (file) {
-        isUploading = true;
-        setBtnLoading(true);
-        const preview = document.getElementById('videoPreview');
-        preview.innerHTML = `<div style="color: #667eea; font-weight: bold; margin-bottom: 10px;">⏳ 影片上傳中，請勿關閉視窗...</div>`;
+      try {
+        // 使用 Promise.all 並行處理所有檔案
+        await Promise.all(files.map(async (file) => {
+          try {
+            // 1. 壓縮
+            const compressedBlob = await compressImage(file);
+            // 2. 上傳
+            const url = await uploadFile(compressedBlob, 'photos');
+            currentPhotos.push(url);
+            
+            completed++;
+            loadingIndicator.textContent = `⏳ 正在上傳照片：${completed} / ${total} (請勿關閉視窗)`;
+            renderPhotoPreview();
+          } catch (err) {
+            console.error("單張照片處理失敗:", err);
+          }
+        }));
         
-        try {
-          currentVideo = await uploadFile(file, 'videos');
-          document.getElementById('videoUrl').value = ""; 
-          renderVideoPreview();
-        } catch (err) {
-          console.error(err);
-          alert('影片上傳失敗：' + err.message);
-        }
+        loadingIndicator.style.color = "#38a169";
+        loadingIndicator.textContent = `✅ 全部 ${total} 張照片上傳完成！`;
+        setTimeout(() => loadingIndicator.remove(), 3000);
+      } catch (err) {
+        console.error("並行上傳發生全域錯誤:", err);
+        alert('照片上傳過程中發生錯誤，請檢查 Firebase Rules 設定。');
+        loadingIndicator.remove();
+      } finally {
         isUploading = false;
         setBtnLoading(false);
-      }
-    });
-
-    document.getElementById('videoUrl').addEventListener('input', function(e) {
-      if (this.value) {
-        currentVideo = this.value;
-        document.getElementById('videoFile').value = ""; 
-        renderVideoPreview();
+        // 清空 input 以便下次選擇同檔案時能觸發 change
+        e.target.value = "";
       }
     });
 
@@ -475,35 +459,6 @@
     function removePhoto(index) {
       currentPhotos.splice(index, 1);
       renderPhotoPreview();
-    }
-
-    function renderVideoPreview() {
-      const preview = document.getElementById('videoPreview');
-      if (currentVideo) {
-        const isDirectVideo = currentVideo.includes('firebasestorage') || currentVideo.endsWith('.mp4') || currentVideo.endsWith('.webm');
-        if (isDirectVideo) {
-          preview.innerHTML = `
-            <video src="${currentVideo}" controls style="max-width: 100%; max-height: 200px; border-radius: 8px;"></video>
-            <button type="button" class="btn btn-danger action-btn" onclick="removeVideo()" style="margin-top: 5px;">移除影片</button>
-          `;
-        } else {
-          preview.innerHTML = `
-            <div style="padding: 10px; background: #e3f2fd; border-radius: 8px; color: #1976d2; font-size: 0.9rem;">
-              📺 已設定外部影片連結：<a href="${currentVideo}" target="_blank" style="word-break: break-all;">${currentVideo}</a>
-            </div>
-            <button type="button" class="btn btn-danger action-btn" onclick="removeVideo()" style="margin-top: 5px;">移除影片</button>
-          `;
-        }
-      } else {
-        preview.innerHTML = '';
-      }
-    }
-
-    function removeVideo() {
-      currentVideo = "";
-      document.getElementById('videoFile').value = "";
-      document.getElementById('videoUrl').value = "";
-      renderVideoPreview();
     }
 
     function renderHouseList() {
@@ -537,9 +492,7 @@
       document.getElementById('houseForm').reset();
       document.getElementById('houseIndex').value = '';
       currentPhotos = [];
-      currentVideo = "";
       renderPhotoPreview();
-      renderVideoPreview();
       document.getElementById('houseModal').style.display = 'flex';
     }
 
@@ -567,9 +520,7 @@
       document.getElementById('desc').value = house.desc || '';
       
       currentPhotos = house.photos || [];
-      currentVideo = house.video || "";
       renderPhotoPreview();
-      renderVideoPreview();
       
       document.getElementById('houseModal').style.display = 'flex';
     }
@@ -613,12 +564,10 @@
         gas: document.getElementById('gas').value,
         features: document.getElementById('features').value,
         photos: currentPhotos,
-        video: currentVideo,
         desc: document.getElementById('desc').value
       };
 
       await saveHouses(houseData, id || null);
-      closeModal();
     });
 
     // 初始渲染
