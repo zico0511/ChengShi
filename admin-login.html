@@ -19,21 +19,68 @@
 <body>
 <div class="box">
   <h2>🔑 管理員驗證</h2>
-  <input type="password" id="pwd" placeholder="請輸入管理密碼">
-  <button onclick="check()">登入管理後台</button>
+  <div style="margin-bottom: 20px; color: #718096; font-size: 0.9rem;">
+    請使用管理員電子郵件與密碼登入
+  </div>
+  <input type="email" id="email" placeholder="電子郵件" required>
+  <input type="password" id="pwd" placeholder="請輸入管理密碼" required>
+  <button id="loginBtn" onclick="login()">登入管理後台</button>
+  <div id="msg" style="margin-top: 15px; color: #e53e3e; font-size: 0.9rem; display: none;"></div>
   <div class="back"><a href="index.html">← 返回首頁</a></div>
 </div>
 
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-auth-compat.js"></script>
+<script src="firebase-config.js"></script>
+
 <script>
-const CORRECT_PWD = "123";
-function check() {
-  const val = document.getElementById('pwd').value;
-  if (val === CORRECT_PWD) {
+// 初始化 Firebase
+firebase.initializeApp(firebaseConfig);
+const auth = firebase.auth();
+
+async function login() {
+  const email = document.getElementById('email').value;
+  const password = document.getElementById('pwd').value;
+  const btn = document.getElementById('loginBtn');
+  const msg = document.getElementById('msg');
+
+  if (!email || !password) {
+    alert("請輸入完整的帳號與密碼");
+    return;
+  }
+
+  btn.disabled = true;
+  btn.textContent = "驗證中...";
+  msg.style.display = "none";
+
+  try {
+    // 使用 Firebase 官方驗證功能
+    await auth.signInWithEmailAndPassword(email, password);
+    // 登入成功，自動跳轉
     location.href = "admin-house.html";
-  } else {
-    alert("❌ 密碼錯誤");
+  } catch (error) {
+    console.error(error);
+    msg.style.display = "block";
+    msg.textContent = "❌ 登入失敗：" + translateError(error.code);
+    btn.disabled = false;
+    btn.textContent = "登入管理後台";
   }
 }
+
+function translateError(code) {
+  switch (code) {
+    case 'auth/user-not-found': return '找不到此帳號';
+    case 'auth/wrong-password': return '密碼輸入錯誤';
+    case 'auth/invalid-email': return '電子郵件格式無效';
+    case 'auth/too-many-requests': return '登入失敗次數過多，請稍後再試';
+    default: return '驗證失敗，請檢查網路或設定';
+  }
+}
+
+// 監聽 Enter 鍵
+document.addEventListener('keydown', (e) => {
+  if (e.key === 'Enter') login();
+});
 </script>
 </body>
 </html>
