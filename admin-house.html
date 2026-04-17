@@ -264,7 +264,7 @@
       
       <div style="margin-top: 2rem; display: flex; gap: 10px; justify-content: flex-end;">
         <button type="button" class="btn btn-outline" onclick="closeModal()">取消</button>
-        <button type="submit" class="btn btn-primary">儲存房源</button>
+        <button type="submit" id="saveBtn" class="btn btn-primary">儲存房源</button>
       </div>
     </form>
   </div>
@@ -287,10 +287,64 @@
     const storage = firebase.storage();
 
     let houses = []; // 改為從 Firebase 獲取
+    let isUploading = false;
+
+    function setBtnLoading(isLoading) {
+      const btn = document.getElementById('saveBtn');
+      if (isLoading) {
+        btn.disabled = true;
+        btn.textContent = "處理中...";
+        btn.style.opacity = "0.7";
+      } else {
+        btn.disabled = false;
+        btn.textContent = "儲存房源";
+        btn.style.opacity = "1";
+      }
+    }
+
+    // 圖片壓縮輔助函數
+    function compressImage(file) {
+      return new Promise((resolve) => {
+        const reader = new FileReader();
+        reader.readAsDataURL(file);
+        reader.onload = (e) => {
+          const img = new Image();
+          img.src = e.target.result;
+          img.onload = () => {
+            const canvas = document.createElement('canvas');
+            let width = img.width;
+            let height = img.height;
+            const maxSide = 1200; // 最大邊長 1200px
+
+            if (width > height && width > maxSide) {
+              height *= maxSide / width;
+              width = maxSide;
+            } else if (height > maxSide) {
+              width *= maxSide / height;
+              height = maxSide;
+            }
+
+            canvas.width = width;
+            canvas.height = height;
+            const ctx = canvas.getContext('2d');
+            ctx.drawImage(img, 0, 0, width, height);
+            
+            canvas.toBlob((blob) => {
+              resolve(blob || file); // 壓縮失敗則傳回原檔案
+            }, 'image/jpeg', 0.8); // 80% 質量
+          };
+        };
+      });
+    }
 
     async function getHouses() { 
-      const snapshot = await db.collection('houses').orderBy('createdAt', 'desc').get();
-      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      try {
+        const snapshot = await db.collection('houses').orderBy('createdAt', 'desc').get();
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+      } catch (e) {
+        console.error("讀取失敗:", e);
+        return [];
+      }
     }
 
     // 初始載入
@@ -303,6 +357,12 @@
     let currentVideo = "";
 
     async function saveHouses(houseData, id = null) {
+      if (isUploading) {
+        alert("檔案還在同步中，請稍候...");
+        return;
+      }
+      
+      setBtnLoading(true);
       try {
         if (id) {
           await db.collection('houses').doc(id).update({
@@ -319,15 +379,19 @@
         houses = await getHouses();
         renderHouseList();
         alert('✅ 房源已成功儲存到雲端！');
+        closeModal();
       } catch (e) {
         console.error(e);
         alert('❌ 儲存時發生錯誤：' + e.message);
+      } finally {
+        setBtnLoading(false);
       }
     }
 
     // 輔助函數：將檔案上傳到 Firebase Storage
     async function uploadFile(file, path) {
-      const storageRef = storage.ref(path + '/' + Date.now() + '_' + file.name);
+      const fileName = Date.now() + '_' + (file.name || 'upload.jpg');
+      const storageRef = storage.ref(path + '/' + fileName);
       const snapshot = await storageRef.put(file);
       return await snapshot.ref.getDownloadURL();
     }
@@ -335,38 +399,55 @@
     // 照片選擇處理 (改為立即上傳到 Storage 以節省資料庫空間)
     document.getElementById('photoFiles').addEventListener('change', async function(e) {
       const files = Array.from(e.target.files);
-      const loadingMsg = document.createElement('div');
-      loadingMsg.textContent = "正在上傳照片...";
-      document.getElementById('photoPreview').appendChild(loadingMsg);
+      if (files.length === 0) return;
+
+      isUploading = true;
+      setBtnLoading(true);
+      
+      const preview = document.getElementById('photoPreview');
+      const loadingIndicator = document.createElement('div');
+      loadingIndicator.id = "photoLoading";
+      loadingIndicator.style.cssText = "color: #667eea; font-size: 0.8rem; width: 100%; padding: 10px; font-weight: bold;";
+      loadingIndicator.textContent = "⏳ 正在處理與優化照片上傳中...";
+      preview.appendChild(loadingIndicator);
 
       for (const file of files) {
         try {
-          const url = await uploadFile(file, 'photos');
+          // 先壓縮再上傳
+          const compressedBlob = await compressImage(file);
+          const url = await uploadFile(compressedBlob, 'photos');
           currentPhotos.push(url);
+          renderPhotoPreview(); // 每傳一張就預覽一次
         } catch (err) {
+          console.error(err);
           alert('照片上傳失敗：' + err.message);
         }
       }
-      loadingMsg.remove();
-      renderPhotoPreview();
+      
+      loadingIndicator.remove();
+      isUploading = false;
+      setBtnLoading(false);
     });
 
     // 影片選擇處理
     document.getElementById('videoFile').addEventListener('change', async function(e) {
       const file = e.target.files[0];
       if (file) {
-        const loadingMsg = document.createElement('div');
-        loadingMsg.textContent = "正在上傳影片 (大文件請耐心等候)...";
-        document.getElementById('videoPreview').appendChild(loadingMsg);
+        isUploading = true;
+        setBtnLoading(true);
+        const preview = document.getElementById('videoPreview');
+        preview.innerHTML = `<div style="color: #667eea; font-weight: bold; margin-bottom: 10px;">⏳ 影片上傳中，請勿關閉視窗...</div>`;
         
         try {
           currentVideo = await uploadFile(file, 'videos');
           document.getElementById('videoUrl').value = ""; 
           renderVideoPreview();
         } catch (err) {
+          console.error(err);
           alert('影片上傳失敗：' + err.message);
         }
-        loadingMsg.remove();
+        isUploading = false;
+        setBtnLoading(false);
       }
     });
 
@@ -380,12 +461,15 @@
 
     function renderPhotoPreview() {
       const preview = document.getElementById('photoPreview');
+      // 保留 loading 訊息
+      const loading = document.getElementById('photoLoading');
       preview.innerHTML = currentPhotos.map((src, index) => `
         <div class="img-preview-item">
           <img src="${src}">
           <div class="img-remove" onclick="removePhoto(${index})">×</div>
         </div>
       `).join('');
+      if (loading) preview.appendChild(loading);
     }
 
     function removePhoto(index) {
