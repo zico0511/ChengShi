@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>管理員驗證</title>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@400;500;700&display=swap" rel="stylesheet">
+  <style>
+    *{margin:0;padding:0;box-sizing:border-box;font-family:'Noto Sans TC',sans-serif}
+    body{background:#f7fafc;display:grid;place-items:center;height:100vh;padding:20px}
+    .box{background:white;padding:40px;border-radius:16px;box-shadow:0 4px 12px rgba(0,0,0,0.1);width:100%;max-width:450px;text-align:center}
+    h2{margin-bottom:24px;color:#2d3748}
+    input{width:100%;padding:14px 16px;border:1px solid #e2e8f0;border-radius:8px;margin-bottom:16px;font-size:16px}
+    button{width:100%;padding:14px;background:#e53e3e;color:white;border:none;border-radius:8px;font-weight:bold;cursor:pointer}
+    .back{margin-top:12px;text-align:center}
+    .back a{color:#667eea;text-decoration:none}
+  </style>
+</head>
+<body>
+<div class="box">
+  <h2>🔑 管理員驗證</h2>
+  <input type="password" id="pwd" placeholder="請輸入管理密碼">
+  <button onclick="check()">登入管理後台</button>
+  <div class="back"><a href="index.html">← 返回首頁</a></div>
+</div>
+
+<script>
+const CORRECT_PWD = "123";
+function check() {
+  const val = document.getElementById('pwd').value;
+  if (val === CORRECT_PWD) {
+    location.href = "admin-house.html";
+  } else {
+    alert("❌ 密碼錯誤");
+  }
+}
+</script>
+</body>
+</html>

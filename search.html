@@ -1,0 +1,498 @@
+<!DOCTYPE html>
+<html lang="zh-Hant">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>快速找房 - 誠石不動產</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --color-primary: #667eea;
+      --color-primary-light: #764ba2;
+      --color-white: #ffffff;
+      --color-text: #2d3748;
+      --color-text-light: #718096;
+      --color-off-white: #f7fafc;
+      --color-light-gray: #e2e8f0;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 0.75rem;
+      --spacing-lg: 1rem;
+      --spacing-xl: 1.5rem;
+      --spacing-2xl: 2rem;
+      --border-radius-lg: 0.5rem;
+      --border-radius-2xl: 1rem;
+      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+    }
+    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Noto Sans TC', sans-serif; }
+    body { background:var(--color-off-white); }
+    .container { max-width:1200px; margin:0 auto; padding:0 var(--spacing-lg); }
+    .navbar { position:fixed; top:0; left:0; right:0; background:#fff; padding:1rem; box-shadow:var(--shadow-md); z-index:99; }
+    .navbar .container { display:flex; justify-content:space-between; align-items:center; }
+    .navbar-brand { font-size:1.2rem; font-weight:bold; color:var(--color-primary); text-decoration:none; }
+    .back-btn { padding:0.5rem 1rem; background:var(--color-primary); color:#fff; border-radius:var(--border-radius-lg); text-decoration:none; font-size:0.9rem; }
+    .search-section { margin-top:90px; padding:var(--spacing-2xl); background:#fff; border-radius:var(--border-radius-2xl); box-shadow:var(--shadow-md); }
+    .search-title { text-align:center; margin-bottom:var(--spacing-xl); font-size:1.5rem; }
+    .filter-grid { display:grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap:var(--spacing-lg); margin-bottom:var(--spacing-xl); }
+    .form-group { display:flex; flex-direction:column; gap:0.4rem; }
+    .form-label { font-size:0.9rem; font-weight:500; }
+    .form-select, .form-input { padding:0.75rem 1rem; border:1px solid var(--color-light-gray); border-radius:var(--border-radius-lg); font-size:0.95rem; background:#fff; width:100%; }
+    .multiselect { position:relative; width:100%; }
+    .multiselect-btn { width:100%; padding:0.75rem 1rem; background:#fff; border:1px solid var(--color-light-gray); border-radius:var(--border-radius-lg); text-align:left; font-size:0.95rem; cursor:pointer; }
+    .multiselect-list { position:absolute; top:100%; left:0; right:0; background:#fff; border:1px solid var(--color-light-gray); border-radius:var(--border-radius-lg); padding:0.5rem; display:none; z-index:999; }
+    .multiselect-list.show { display:block; }
+    .multiselect-item { display:flex; align-items:center; gap:6px; padding:5px 0; font-size:0.9rem; cursor:pointer; }
+    .btn-search { width:100%; padding:1rem; background:linear-gradient(135deg,var(--color-primary),var(--color-primary-light)); color:#fff; border:none; border-radius:var(--border-radius-lg); font-size:1rem; font-weight:bold; cursor:pointer; }
+    
+    .house-list { margin:30px 0; display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px; }
+    .house-card { background:#fff; padding:0; border-radius:12px; box-shadow:var(--shadow-md); cursor:pointer; overflow:hidden; transition: transform 0.2s; }
+    .house-card:hover { transform: translateY(-5px); }
+    .house-img { width:100%; height:180px; object-fit:cover; cursor:pointer; }
+    .house-body { padding:20px; }
+    .house-title { font-size:1rem; font-weight:bold; margin-bottom:8px; }
+    .house-info { font-size:0.9rem; color:var(--color-text); line-height:1.6; }
+    .house-feature { color:var(--color-primary); font-weight:500; margin-top:6px; }
+    .no-data { text-align:center; padding:40px 20px; color:var(--color-text-light); }
+
+    .img-preview { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:99999; }
+    .img-preview img { max-width:90%; max-height:90%; border-radius: 8px; user-select: none; }
+    .img-preview .close { position:absolute; top:20px; right:30px; color:#fff; font-size:40px; cursor:pointer; font-weight: bold; z-index: 100; }
+    .nav-btn { position: absolute; top: 50%; transform: translateY(-50%); color: #fff; font-size: 50px; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 8px; user-select: none; transition: background 0.3s; }
+    .nav-btn:hover { background: rgba(255,255,255,0.2); }
+    .prev-btn { left: 20px; }
+    .next-btn { right: 20px; }
+
+    .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:9999; }
+    .modal-content { background:#fff; max-width:700px; width:90%; border-radius:16px; padding:25px; max-height:90vh; overflow-y:auto; position: relative; }
+    .modal-close { padding:8px 16px; background:#e53e3e; color:#fff; border:none; border-radius:8px; cursor:pointer; position: sticky; top: 0; float: right; z-index: 10; }
+    .modal-desc { white-space:pre-wrap; line-height:1.8; margin-top:10px; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--color-primary); }
+    .modal-photos { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px; margin-top: 10px; }
+    .modal-photos img { width:100px; height:100px; object-fit:cover; border-radius:8px; cursor:pointer; border: 1px solid #eee; }
+    .modal-video video { max-width:100%; border-radius:8px; margin:15px 0; background: #000; display: block; }
+    .map-link { color:#007bff; text-decoration:underline; cursor:pointer; font-weight: 500; }
+    .map-link:hover { color: #0056b3; }
+
+    .footer { background:#2d3748; color:#fff; padding:30px 20px; text-align:center; margin-top:40px; }
+    .footer p { margin:4px 0; font-size:0.9rem; }
+  </style>
+</head>
+
+<body>
+
+<div class="img-preview" id="imgPreview" onclick="closeImgPreview()">
+  <span class="close">&times;</span>
+  <div class="nav-btn prev-btn" onclick="event.stopPropagation(); changeImg(-1)">&#10094;</div>
+  <img id="previewImg" src="" onclick="event.stopPropagation()">
+  <div class="nav-btn next-btn" onclick="event.stopPropagation(); changeImg(1)">&#10095;</div>
+</div>
+
+<nav class="navbar">
+  <div class="container">
+    <a href="index.html" class="navbar-brand">誠石不動產</a>
+    <div onclick="event.stopPropagation()">
+      <!-- 🔥 這裡引導至 admin-login.html -->
+      <a href="admin-login.html" class="back-btn" style="background:#e53e3e;margin-left:8px">新增房源</a>
+      <a href="index.html" class="back-btn">← 回首頁</a>
+    </div>
+  </div>
+</nav>
+
+<section class="container">
+  <div class="search-section">
+    <h2 class="search-title">🔍 台中專業租屋搜尋</h2>
+    <div class="filter-grid">
+      <div class="form-group">
+        <label class="form-label">行政區</label>
+        <select id="area" class="form-select">
+          <option value="">不限</option>
+          <option>中區</option><option>東區</option><option>南區</option><option>西區</option><option>北區</option>
+          <option>北屯區</option><option>西屯區</option><option>南屯區</option><option>沙鹿區</option><option>清水區</option>
+          <option>梧棲區</option><option>烏日區</option><option>大雅區</option><option>潭子區</option><option>太平區</option>
+          <option>大里區</option><option>霧峰區</option><option>龍井區</option><option>其他</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">租金預算</label>
+        <select id="priceRange" class="form-select">
+          <option value="">不限</option>
+          <option>10000以內</option>
+          <option>10000-20000</option>
+          <option>20000-30000</option>
+          <option>30000-50000</option>
+          <option>50000以上</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">自訂租金</label>
+        <input id="customPrice" class="form-input" placeholder="例：13000-15000">
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">房屋型態</label>
+        <select id="type" class="form-select">
+          <option value="">不限</option>
+          <option>獨立套房</option><option>整層住家</option><option>整棟透天</option><option>店面</option><option>廠房</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">房型</label>
+        <select id="room" class="form-select">
+          <option value="">不限</option>
+          <option>1房</option><option>2房</option><option>3房</option><option>4房</option><option>4房以上</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">車位</label>
+        <select id="park" class="form-select">
+          <option value="">不限</option>
+          <option>平面車位</option><option>機械車位</option><option>機車車位</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">租屋補助</label>
+        <select id="subsidy" class="form-select">
+          <option value="">不限</option>
+          <option>禁</option><option>可</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">網路</label>
+        <select id="internet" class="form-select">
+          <option value="">不限</option>
+          <option>無</option><option>有</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">第四台</label>
+        <select id="cable" class="form-select">
+          <option value="">不限</option>
+          <option>無</option><option>有</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">天然瓦斯</label>
+        <select id="gas" class="form-select">
+          <option value="">不限</option>
+          <option>無</option><option>有</option>
+        </select>
+      </div>
+
+      <div class="form-group">
+        <label class="form-label">特色條件</label>
+        <div class="multiselect">
+          <button type="button" class="multiselect-btn" id="multiBtn">請選擇</button>
+          <div class="multiselect-list" id="multiList">
+            <label class="multiselect-item"><input type="checkbox" value="可貓">可貓</label>
+            <label class="multiselect-item"><input type="checkbox" value="可狗">可狗</label>
+            <label class="multiselect-item"><input type="checkbox" value="有陽台">有陽台</label>
+            <label class="multiselect-item"><input type="checkbox" value="電梯">電梯</label>
+            <label class="multiselect-item"><input type="checkbox" value="可租補">可租補</label>
+            <label class="multiselect-item"><input type="checkbox" value="可入籍">可入籍</label>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <button class="btn-search" id="searchBtn">🔍 立即搜尋房源</button>
+  </div>
+
+  <div id="houseList" class="house-list"></div>
+</section>
+
+<div class="modal" id="detailModal">
+  <div class="modal-content">
+    <button class="modal-close" onclick="closeModal()">關閉</button>
+    <div id="modalContent"></div>
+  </div>
+</div>
+
+<footer class="footer">
+  <p>誠石不動產｜專營台中租賃服務</p>
+  <p>📞 0936-890-239</p>
+  <p>📍 臺中市沙鹿區</p>
+</footer>
+
+<script>
+const multiBtn = document.getElementById('multiBtn');
+const multiList = document.getElementById('multiList');
+const checkboxes = multiList.querySelectorAll('input');
+
+multiBtn.addEventListener('click', (e) => { e.stopPropagation(); multiList.classList.toggle('show'); });
+checkboxes.forEach(cb => cb.addEventListener('change', updateMultiText));
+function updateMultiText() {
+  const selected = Array.from(checkboxes).filter(c => c.checked).map(c => c.value);
+  multiBtn.textContent = selected.length ? selected.join('、') : '請選擇';
+}
+window.addEventListener('click', () => multiList.classList.remove('show'));
+multiList.addEventListener('click', e => e.stopPropagation());
+
+function getHouses() { 
+  let houses = JSON.parse(localStorage.getItem('houses') || '[]');
+  if (houses.length === 0) {
+    // 預設一些測試資料
+    houses = [
+      {
+        title: "台中精華區｜奢華一房一廳｜可貓",
+        area: "西屯區",
+        price: "18500",
+        type: "獨立套房",
+        room: "1房",
+        size: "12",
+        floor: "8F/15F",
+        park: "平面車位",
+        elevator: "有",
+        pet: "可貓",
+        subsidy: "可",
+        internet: "有",
+        cable: "有",
+        gas: "無",
+        features: "有陽台、電梯、可租補",
+        photos: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"],
+        desc: "位於西屯區精華地段，交通便利，採光良好，適合上班族或小資族。"
+      },
+      {
+        title: "北屯大四房｜全家首選｜近捷運站",
+        area: "北屯區",
+        price: "35000",
+        type: "整層住家",
+        room: "4房",
+        size: "45",
+        floor: "5F/12F",
+        park: "平面車位",
+        elevator: "有",
+        pet: "不可",
+        subsidy: "禁",
+        internet: "有",
+        cable: "無",
+        gas: "有",
+        features: "電梯、可入籍",
+        photos: ["https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"],
+        desc: "大空間好利用，近捷運站，生活機能極佳。"
+      },
+      {
+        title: "沙鹿靜巷透天｜空間大好規劃｜可狗",
+        area: "沙鹿區",
+        price: "22000",
+        type: "整棟透天",
+        room: "3房",
+        size: "35",
+        floor: "1-3F",
+        park: "機車車位",
+        elevator: "無",
+        pet: "可狗",
+        subsidy: "可",
+        internet: "無",
+        cable: "無",
+        gas: "有",
+        features: "有陽台、可入籍",
+        photos: ["https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"],
+        desc: "環境清幽，空間寬敞，適合有毛小孩的家庭。"
+      }
+    ];
+    localStorage.setItem('houses', JSON.stringify(houses));
+  }
+  return houses; 
+}
+function getSelectedFeatures() { return Array.from(checkboxes).filter(c => c.checked).map(c => c.value); }
+
+let currentPhotoList = [];
+let currentPhotoIdx = 0;
+
+function openImgPreview(src, photoList) {
+  if (!src) return;
+  currentPhotoList = photoList || [src];
+  currentPhotoIdx = currentPhotoList.indexOf(src);
+  if (currentPhotoIdx === -1) currentPhotoIdx = 0;
+  
+  updatePreviewImg();
+  document.getElementById('imgPreview').style.display = 'flex';
+  
+  const navBtns = document.querySelectorAll('.nav-btn');
+  navBtns.forEach(btn => btn.style.display = currentPhotoList.length > 1 ? 'block' : 'none');
+}
+
+function updatePreviewImg() {
+  document.getElementById('previewImg').src = currentPhotoList[currentPhotoIdx];
+}
+
+function changeImg(step) {
+  currentPhotoIdx += step;
+  if (currentPhotoIdx >= currentPhotoList.length) currentPhotoIdx = 0;
+  if (currentPhotoIdx < 0) currentPhotoIdx = currentPhotoList.length - 1;
+  updatePreviewImg();
+}
+
+function closeImgPreview() {
+  document.getElementById('imgPreview').style.display = 'none';
+}
+
+function openMap(address) {
+  if (!address) return;
+  const url = 'https://www.google.com/maps/search/?api=1&query=' + encodeURIComponent(address);
+  window.open(url, '_blank');
+}
+
+function showDetail(house) {
+  if (!house) return;
+  const modal = document.getElementById('detailModal');
+  const content = document.getElementById('modalContent');
+  
+  let photosHtml = '';
+  if (house.photos && house.photos.length > 0) {
+    photosHtml = '<div class="modal-photos">';
+    const photoListJson = JSON.stringify(house.photos).replace(/'/g, "\\'");
+    house.photos.forEach(p => {
+      if (p) photosHtml += `<img src="${p}" onclick='openImgPreview("${p}", ${photoListJson})' title="點擊放大圖片">`;
+    });
+    photosHtml += '</div>';
+  }
+
+  let videoHtml = '';
+  if (house.video) {
+    videoHtml = `
+      <div class="modal-video">
+        <video controls width="100%" playsinline>
+          <source src="${house.video}" type="video/mp4">
+          <source src="${house.video}" type="video/webm">
+          <source src="${house.video}" type="video/ogg">
+          您的瀏覽器不支援影片播放。
+        </video>
+      </div>
+    `;
+  }
+
+  let addressHtml = '未填寫';
+  if (house.address && house.address.trim() !== '') {
+    addressHtml = `<span class="map-link" onclick="openMap('${house.address}')" title="點擊開啟 Google 地圖導航">📍 ${house.address} (點擊導航)</span>`;
+  }
+
+  const detailDesc = house.desc || house.description || '無詳細說明';
+
+  content.innerHTML = `
+    ${photosHtml}
+    ${videoHtml}
+    <h3 style="margin: 15px 0 10px 0; color: var(--color-primary);">${house.title}</h3>
+    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 10px; font-size: 0.95rem; line-height: 1.8;">
+      <p><strong>📍 區域：</strong>${house.area || '未填'}</p>
+      <p><strong>💰 租金：</strong><span style="color: #e53e3e; font-weight: bold;">${house.price || 0}</span> 元/月</p>
+      <p><strong>🏢 樓層：</strong>${house.floor || '未填'}</p>
+      <p><strong>📏 坪數：</strong>${house.size || 0} 坪</p>
+      <p><strong>🚗 車位：</strong>${house.park || '無'}</p>
+      <p><strong>🛗 電梯：</strong>${house.elevator || '無'}</p>
+      <p><strong>🐾 寵物：</strong>${house.pet || '不可'}</p>
+      <p><strong>💰 租補：</strong>${house.subsidy || '禁'}</p>
+      <p><strong>🌐 網路：</strong>${house.internet || '無'}</p>
+      <p><strong>📺 第四台：</strong>${house.cable || '無'}</p>
+      <p><strong>🔥 瓦斯：</strong>${house.gas || '無'}</p>
+      <p><strong>✨ 特色：</strong>${house.features || '無'}</p>
+    </div>
+    <p style="margin-top: 10px;"><strong>🏠 地址：</strong>${addressHtml}</p>
+    <div style="margin-top: 15px; border-top: 1px solid #eee; padding-top: 10px;">
+      <p><strong>📝 詳細說明：</strong></p>
+      <div class="modal-desc">${detailDesc}</div>
+    </div>
+  `;
+  modal.style.display = 'flex';
+}
+
+function closeModal() { document.getElementById('detailModal').style.display = 'none'; }
+
+function renderHouse() {
+  const houses = getHouses();
+  const listEl = document.getElementById('houseList');
+
+  const area = document.getElementById('area').value;
+  const priceRange = document.getElementById('priceRange').value;
+  const customPrice = document.getElementById('customPrice').value.trim();
+  const type = document.getElementById('type').value;
+  const room = document.getElementById('room').value;
+  const park = document.getElementById('park').value;
+  const subsidy = document.getElementById('subsidy').value;
+  const internet = document.getElementById('internet').value;
+  const cable = document.getElementById('cable').value;
+  const gas = document.getElementById('gas').value;
+  const features = getSelectedFeatures();
+
+  let filtered = houses.filter(h => {
+    const price = parseInt(h.price) || 0;
+    if (area && h.area !== area) return false;
+    if (type && h.type !== type) return false;
+    if (room && h.room !== room) return false;
+    if (park && h.park !== park) return false;
+    if (subsidy && (h.subsidy || '禁') !== subsidy) return false;
+    if (internet && (h.internet || '無') !== internet) return false;
+    if (cable && (h.cable || '無') !== cable) return false;
+    if (gas && (h.gas || '無') !== gas) return false;
+
+    if (features.length > 0) {
+      const hf = (h.features || '').split('、');
+      if (!features.every(f => hf.includes(f))) return false;
+    }
+
+    if (customPrice.includes('-')) {
+      const [min, max] = customPrice.split('-').map(Number);
+      return price >= min && price <= max;
+    }
+    if (customPrice) return price >= Number(customPrice);
+
+    switch (priceRange) {
+      case '10000以內': return price <= 10000;
+      case '10000-20000': return price >= 10000 && price <= 20000;
+      case '20000-30000': return price >= 20000 && price <= 30000;
+      case '30000-50000': return price >= 30000 && price <= 50000;
+      case '50000以上': return price >= 50000;
+      default: return true;
+    }
+  });
+
+  if (!filtered.length) { 
+    listEl.innerHTML = '<div class="no-data">目前尚無符合條件的房源</div>'; 
+    return; 
+  }
+
+  listEl.innerHTML = filtered.map((h) => {
+    const houseJson = JSON.stringify(h).replace(/'/g, "\\'");
+    const photoListJson = JSON.stringify(h.photos || []).replace(/'/g, "\\'");
+    return `
+      <div class="house-card" onclick='showDetail(${houseJson})'>
+        ${h.photos && h.photos[0] ? 
+          `<img src="${h.photos[0]}" class="house-img" onclick='event.stopPropagation(); openImgPreview("${h.photos[0]}", ${photoListJson})'>` 
+          : '<div style="height:180px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;">無照片</div>'}
+        <div class="house-body">
+          <div class="house-title">${h.title}</div>
+          <div class="house-info">${h.area}｜${h.price} 元<br>${h.type}｜${h.room}</div>
+          <div class="house-info">樓層：${h.floor || '未填'}</div>
+          <div class="house-feature">${h.features || ''}</div>
+        </div>
+      </div>
+    `;
+  }).join('');
+}
+
+document.getElementById('searchBtn').addEventListener('click', renderHouse);
+window.onload = renderHouse;
+
+window.addEventListener('keydown', (e) => {
+  if (document.getElementById('imgPreview').style.display === 'flex') {
+    if (e.key === 'ArrowLeft') changeImg(-1);
+    if (e.key === 'ArrowRight') changeImg(1);
+    if (e.key === 'Escape') closeImgPreview();
+  }
+});
+
+window.onclick = function(event) {
+  const modal = document.getElementById('detailModal');
+  if (event.target == modal) closeModal();
+}
+</script>
+</body>
+</html>

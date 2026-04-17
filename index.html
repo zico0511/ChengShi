@@ -1,281 +1,744 @@
 <!DOCTYPE html>
-<html lang="zh-TW">
+<html lang="zh-Hant">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>誠石不動產 - 台中專業租屋網</title>
+  <meta name="description" content="誠石不動產 - 讓專業，決定您的資產高度">
+  <title>誠石不動產 - 專業租屋服務</title>
+  
+  <!-- 字體 -->
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&family=Noto+Serif+TC:wght@300;400;500;600&display=swap" rel="stylesheet">
+  
+  <!-- 頁面專用樣式 -->
   <style>
-    *{margin:0;padding:0;box-sizing:border-box;font-family:Microsoft JhengHei,sans-serif}
-    body{background:#f5f5f5}
-    .top{background:#222;color:#fff;padding:10px 15px;font-size:14px;display:flex;justify-content:space-between;flex-wrap:wrap}
-    .header{background:#fff;border-bottom:1px solid #ddd;padding:20px;display:flex;justify-content:space-between;align-items:center}
-    .logo{font-size:26px;font-weight:700;color:#c41e3a}
-    .license{font-size:13px;color:#555;line-height:1.4}
-    .nav{background:#c41e3a}
-    .nav-inner{max-width:1200px;margin:auto;display:flex;flex-wrap:wrap}
-    .nav a{color:#fff;padding:14px 18px;text-decoration:none}
-    .nav a:hover{background:#a01830}
-    .container{max-width:1200px;margin:25px auto;padding:0 15px}
-    .search{background:#fff;border-radius:12px;padding:20px;margin-bottom:20px;box-shadow:0 2px 8px #00000010}
-    .search-grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px}
-    .item label{font-size:13px;margin-bottom:5px;display:block}
-    .item select{width:100%;padding:10px;border:1px solid #ddd;border-radius:6px}
-    .btn-red{background:#c41e3a;color:#fff;border:none;padding:10px 20px;border-radius:6px;margin-top:10px;cursor:pointer}
-    .house-grid{display:grid;grid-template-columns:repeat(auto-fill,minmax(280px,1fr));gap:18px}
-    .card{background:#fff;border-radius:12px;overflow:hidden;box-shadow:0 1px 6px rgba(0,0,0,0.05)}
-    .media img, .media video{width:100%;height:220px;object-fit:cover;cursor:pointer}
-    .card-body{padding:16px}
-    .price{font-size:22px;font-weight:700;color:#c41e3a;margin-bottom:6px}
-    .title{font-size:16px;font-weight:700;margin-bottom:8px}
-    .addr{font-size:12px;color:#c41e3a;background:#ffeef0;padding:4px 6px;border-radius:4px;margin:6px 0}
-    .detail{font-size:13px;color:#666;margin:4px 0}
-    .tag{background:#f0f3f5;padding:3px 6px;border-radius:4px;font-size:12px;margin-right:4px}
-    .map-box{margin-top:10px}
-    .map-box a{display:block;background:#e3f2fd;color:#0277bd;padding:10px 12px;border-radius:8px;text-decoration:none;margin-top:8px}
-    .footer{background:#222;color:#fff;text-align:center;padding:25px 15px;font-size:13px;margin-top:30px}
-    .thumb-box{display:flex;gap:6px;overflow-x:auto;padding:8px;background:#f8f9fa}
-    .thumb{width:50px;height:50px;object-fit:cover;border-radius:4px;cursor:pointer}
-    .lightbox{position:fixed;top:0;left:0;width:100%;height:100%;background:rgba(0,0,0,0.9);display:flex;align-items:center;justify-content:center;z-index:9999}
-    .lightbox img, .lightbox video{max-width:90%;max-height:90%}
-    .lightbox .close{position:absolute;top:20px;right:20px;color:#fff;font-size:30px;cursor:pointer}
-    .lightbox .prev,.lightbox .next{position:absolute;color:#fff;font-size:40px;cursor:pointer;padding:20px}
-    .lightbox .prev{left:20px}
-    .lightbox .next{right:20px}
-    .hide{display:none}
+    /* CSS 變數定義 */
+    :root {
+      --color-primary: #667eea;
+      --color-primary-light: #764ba2;
+      --color-primary-dark: #5a67d8;
+      --color-accent: #f093fb;
+      --color-white: #ffffff;
+      --color-black: #000000;
+      --color-text: #2d3748;
+      --color-text-light: #718096;
+      --color-off-white: #f7fafc;
+      --color-light-gray: #e2e8f0;
+      --color-medium-gray: #a0aec0;
+      --color-dark-gray: #4a5568;
+      --color-border-light: #e2e8f0;
+      
+      --font-size-xs: 0.75rem;
+      --font-size-sm: 0.875rem;
+      --font-size-base: 1rem;
+      --font-size-lg: 1.125rem;
+      --font-size-xl: 1.25rem;
+      --font-size-2xl: 1.5rem;
+      --font-size-3xl: 1.875rem;
+      --font-size-4xl: 2.25rem;
+      --font-size-5xl: 3rem;
+      
+      --spacing-xs: 0.25rem;
+      --spacing-sm: 0.5rem;
+      --spacing-md: 0.75rem;
+      --spacing-lg: 1rem;
+      --spacing-xl: 1.5rem;
+      --spacing-2xl: 2rem;
+      --spacing-3xl: 3rem;
+      --spacing-4xl: 4rem;
+      
+      --border-radius-sm: 0.125rem;
+      --border-radius-md: 0.375rem;
+      --border-radius-lg: 0.5rem;
+      --border-radius-xl: 0.75rem;
+      --border-radius-2xl: 1rem;
+      --border-radius-full: 9999px;
+      
+      --shadow-sm: 0 1px 2px 0 rgba(0, 0, 0, 0.05);
+      --shadow-md: 0 4px 6px -1 rgba(0, 0, 0, 0.1), 0 2px 4px -1 rgba(0, 0, 0, 0.06);
+      --shadow-lg: 0 10px 15px -3 rgba(0, 0, 0, 0.1), 0 4px 6px -2 rgba(0, 0, 0, 0.05);
+      --shadow-xl: 0 20px 25px -5 rgba(0, 0, 0, 0.1), 0 10px 10px -5 rgba(0, 0, 0, 0.04);
+      
+      --transition-fast: 0.15s ease;
+      --transition-normal: 0.3s ease;
+      --transition-slow: 0.5s ease;
+    }
+
+    /* 基礎樣式 */
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: 'Noto Sans TC', sans-serif;
+      line-height: 1.6;
+      color: var(--color-text);
+    }
+
+    .container {
+      max-width: 1200px;
+      margin: 0 auto;
+      padding: 0 var(--spacing-lg);
+    }
+
+    .grid {
+      display: grid;
+      gap: var(--spacing-2xl);
+    }
+
+    .grid-cols-4 {
+      grid-template-columns: repeat(auto-fit, minmax(250px, 1fr));
+    }
+
+    /* 按鈕樣式 */
+    .btn {
+      display: inline-block;
+      padding: var(--spacing-md) var(--spacing-xl);
+      border-radius: var(--border-radius-lg);
+      text-decoration: none;
+      font-weight: 600;
+      text-align: center;
+      transition: all var(--transition-normal);
+      cursor: pointer;
+      border: none;
+      font-size: var(--font-size-base);
+    }
+
+    .btn-primary {
+      background: linear-gradient(135deg, var(--color-primary), var(--color-primary-light));
+      color: var(--color-white);
+    }
+
+    .btn-primary:hover {
+      transform: translateY(-2px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .btn-outline {
+      background: transparent;
+      color: var(--color-white);
+      border: 2px solid var(--color-white);
+    }
+
+    .btn-outline:hover {
+      background: var(--color-white);
+      color: var(--color-primary);
+    }
+
+    .btn-lg {
+      padding: var(--spacing-lg) var(--spacing-2xl);
+      font-size: var(--font-size-lg);
+    }
+
+    /* 導航欄 */
+    .navbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      z-index: 100;
+      padding: var(--spacing-lg) 0;
+      background: rgba(255, 255, 255, 0.1);
+      backdrop-filter: blur(10px);
+      transition: all var(--transition-normal);
+    }
+
+    .navbar.scrolled {
+      background: var(--color-white);
+      box-shadow: var(--shadow-md);
+    }
+
+    .navbar .container {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .navbar-brand {
+      font-size: var(--font-size-xl);
+      font-weight: 700;
+      color: var(--color-white);
+      text-decoration: none;
+      transition: color var(--transition-fast);
+    }
+
+    .navbar.scrolled .navbar-brand {
+      color: var(--color-primary);
+    }
+
+    .navbar-links {
+      display: flex;
+      list-style: none;
+      gap: var(--spacing-2xl);
+    }
+
+    .navbar-link {
+      color: var(--color-white);
+      text-decoration: none;
+      font-weight: 500;
+      transition: color var(--transition-fast);
+    }
+
+    .navbar-link:hover {
+      color: var(--color-accent);
+    }
+
+    .navbar.scrolled .navbar-link {
+      color: var(--color-text);
+    }
+
+    .navbar.scrolled .navbar-link:hover {
+      color: var(--color-primary);
+    }
+
+    /* 主橫幅區域 */
+    .hero {
+      height: 100vh;
+      width: 100%;
+      background-image: url('image.png');
+      background-size: cover;
+      background-position: center;
+      background-repeat: no-repeat;
+      display: flex;
+      align-items: center;
+      position: relative;
+      overflow: hidden;
+    }
+
+    .hero::before {
+      content: '';
+      position: absolute;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100%;
+      background: rgba(0, 0, 0, 0.3);
+      z-index: 1;
+    }
+
+    .hero-content {
+      position: relative;
+      z-index: 5;
+      max-width: 600px;
+      margin-left: 10%;
+      color: var(--color-white);
+    }
+
+    .hero-title {
+      font-size: var(--font-size-5xl);
+      margin-bottom: var(--spacing-xl);
+      line-height: 1.2;
+      opacity: 0;
+      animation: fadeIn 0.8s ease forwards;
+      text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero-subtitle {
+      font-size: var(--font-size-xl);
+      margin-bottom: var(--spacing-3xl);
+      line-height: 1.5;
+      font-weight: 300;
+      opacity: 0;
+      animation: fadeIn 0.8s ease 0.2s forwards;
+      text-shadow: 1px 1px 2px rgba(0, 0, 0, 0.7);
+    }
+
+    .hero-buttons {
+      display: flex;
+      gap: var(--spacing-lg);
+      opacity: 0;
+      animation: fadeIn 0.8s ease 0.4s forwards;
+    }
+
+    @keyframes fadeIn {
+      to { opacity: 1; }
+    }
+
+    /* 頁腳 */
+    .footer {
+      padding: var(--spacing-4xl) 0 var(--spacing-2xl);
+      background: linear-gradient(135deg, var(--color-dark-gray), var(--color-black));
+      color: var(--color-white);
+    }
+
+    .footer-section-title {
+      font-size: var(--font-size-lg);
+      margin-bottom: var(--spacing-xl);
+      color: var(--color-white);
+      font-weight: 600;
+    }
+
+    .footer-links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-md);
+    }
+
+    .footer-link {
+      color: var(--color-light-gray);
+      text-decoration: none;
+      font-size: var(--font-size-base);
+      transition: color var(--transition-fast);
+    }
+
+    .footer-link:hover {
+      color: var(--color-white);
+    }
+
+    .footer-contact-item {
+      display: flex;
+      align-items: flex-start;
+      gap: var(--spacing-md);
+      font-size: var(--font-size-base);
+      color: var(--color-light-gray);
+      margin-bottom: var(--spacing-md);
+    }
+
+    .footer-social {
+      display: flex;
+      gap: var(--spacing-lg);
+      margin-top: var(--spacing-xl);
+    }
+
+    .footer-social-link {
+      width: 48px;
+      height: 48px;
+      border-radius: var(--border-radius-full);
+      background-color: var(--color-medium-gray);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      transition: background-color var(--transition-fast);
+      color: var(--color-white);
+      text-decoration: none;
+    }
+
+    .footer-social-link:hover {
+      background-color: var(--color-primary);
+    }
+
+    .footer-bottom {
+      text-align: center;
+      padding-top: var(--spacing-2xl);
+      border-top: 1px solid var(--color-medium-gray);
+      font-size: var(--font-size-sm);
+      color: var(--color-light-gray);
+      margin-top: var(--spacing-2xl);
+    }
+
+    /* 移動端菜單 */
+    .mobile-menu {
+      position: fixed;
+      top: 0;
+      right: -100%;
+      width: 80%;
+      height: 100vh;
+      background-color: var(--color-white);
+      z-index: 1001;
+      padding: var(--spacing-4xl) var(--spacing-2xl);
+      transition: right var(--transition-normal);
+      box-shadow: var(--shadow-xl);
+    }
+
+    .mobile-menu.active {
+      right: 0;
+    }
+
+    .mobile-menu-close {
+      position: absolute;
+      top: var(--spacing-xl);
+      right: var(--spacing-xl);
+      width: 32px;
+      height: 32px;
+      cursor: pointer;
+      background: none;
+      border: none;
+      font-size: var(--font-size-xl);
+      color: var(--color-text);
+    }
+
+    .mobile-menu-links {
+      display: flex;
+      flex-direction: column;
+      gap: var(--spacing-xl);
+      margin-top: var(--spacing-2xl);
+    }
+
+    .mobile-menu-link {
+      color: var(--color-text);
+      font-size: var(--font-size-lg);
+      text-decoration: none;
+      padding-bottom: var(--spacing-md);
+      border-bottom: 1px solid var(--color-border-light);
+      transition: color var(--transition-fast);
+    }
+
+    .mobile-menu-link:hover {
+      color: var(--color-primary);
+    }
+
+    .overlay {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 100vh;
+      background-color: rgba(0, 0, 0, 0.5);
+      z-index: 1000;
+      opacity: 0;
+      visibility: hidden;
+      transition: opacity var(--transition-normal), visibility var(--transition-normal);
+    }
+
+    .overlay.active {
+      opacity: 1;
+      visibility: visible;
+    }
+
+    .navbar-toggle {
+      display: none;
+      flex-direction: column;
+      justify-content: space-between;
+      width: 24px;
+      height: 18px;
+      cursor: pointer;
+    }
+
+    .navbar-toggle span {
+      display: block;
+      width: 100%;
+      height: 2px;
+      background-color: var(--color-white);
+      transition: background-color var(--transition-fast);
+    }
+
+    .navbar.scrolled .navbar-toggle span {
+      background-color: var(--color-text);
+    }
+
+    .fade-in {
+      opacity: 0;
+      animation: fadeIn 0.6s ease forwards;
+    }
+
+    /* 響應式設計 */
+    @media (max-width: 768px) {
+      .navbar-links { display: none; }
+      .navbar-toggle { display: flex; }
+      
+      .hero-content {
+        margin-left: 5%;
+        max-width: 90%;
+      }
+      
+      .hero-title { font-size: var(--font-size-3xl); }
+      .hero-subtitle { font-size: var(--font-size-lg); margin-bottom: var(--spacing-2xl); }
+      .hero-buttons { flex-direction: column; align-items: flex-start; }
+      .grid-cols-4 { grid-template-columns: repeat(2, 1fr); }
+    }
+
+    @media (max-width: 480px) {
+      .hero-title { font-size: var(--font-size-2xl); }
+      .grid-cols-4 { grid-template-columns: 1fr; }
+    }
+
+    /* 房源卡片樣式 */
+    .house-card {
+      background: var(--color-white);
+      border-radius: var(--border-radius-xl);
+      overflow: hidden;
+      box-shadow: var(--shadow-md);
+      transition: transform var(--transition-normal), box-shadow var(--transition-normal);
+      cursor: pointer;
+    }
+
+    .house-card:hover {
+      transform: translateY(-5px);
+      box-shadow: var(--shadow-lg);
+    }
+
+    .house-img-container {
+      height: 200px;
+      overflow: hidden;
+      position: relative;
+    }
+
+    .house-img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      transition: transform var(--transition-slow);
+    }
+
+    .house-card:hover .house-img {
+      transform: scale(1.05);
+    }
+
+    .house-badge {
+      position: absolute;
+      top: var(--spacing-md);
+      right: var(--spacing-md);
+      background: rgba(0, 0, 0, 0.6);
+      color: var(--color-white);
+      padding: var(--spacing-xs) var(--spacing-sm);
+      border-radius: var(--border-radius-md);
+      font-size: var(--font-size-xs);
+      backdrop-filter: blur(4px);
+    }
+
+    .house-body {
+      padding: var(--spacing-lg);
+    }
+
+    .house-title {
+      font-size: var(--font-size-lg);
+      font-weight: 700;
+      margin-bottom: var(--spacing-sm);
+      color: var(--color-text);
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .house-info {
+      font-size: var(--font-size-sm);
+      color: var(--color-text-light);
+      margin-bottom: var(--spacing-md);
+      display: flex;
+      justify-content: space-between;
+    }
+
+    .house-price {
+      font-size: var(--font-size-xl);
+      font-weight: 700;
+      color: var(--color-danger, #e53e3e);
+    }
+
+    .house-price span {
+      font-size: var(--font-size-sm);
+      font-weight: 400;
+      color: var(--color-text-light);
+    }
   </style>
 </head>
 <body>
 
-<div class="top">
-  <div>📞 0936-890-239 | LINE：zico0511</div>
-  <div>誠石不動產 台中專業租屋</div>
-</div>
-
-<div class="header">
-  <div class="logo">誠石不動產</div>
-  <div class="license">
-    (113)登字第458761<br>
-    中市仲商證字號第J0103號<br>
-    (103)中市經紀字號第01361號
-  </div>
-</div>
-
-<div class="nav">
-  <div class="nav-inner">
-    <a href="#all">物件列表</a>
-    <a href="admin.html" target="_blank">管理後台</a>
-    <a href="tel:0936890239">立即聯絡</a>
-  </div>
-</div>
-
-<div class="container">
-  <div class="search" id="all">
-    <div class="search-grid">
-      <div class="item">
-        <label>行政區</label>
-        <select id="area">
-          <option value="">全部</option>
-          <option value="中區">中區</option>
-          <option value="東區">東區</option>
-          <option value="南區">南區</option>
-          <option value="西區">西區</option>
-          <option value="北區">北區</option>
-          <option value="北屯">北屯</option>
-          <option value="西屯">西屯</option>
-          <option value="南屯">南屯</option>
-          <option value="太平">太平</option>
-          <option value="大里">大里</option>
-          <option value="霧峰">霧峰</option>
-          <option value="烏日">烏日</option>
-          <option value="豐原">豐原</option>
-          <option value="后里">后里</option>
-          <option value="石岡">石岡</option>
-          <option value="東勢">東勢</option>
-          <option value="和平">和平</option>
-          <option value="新社">新社</option>
-          <option value="潭子">潭子</option>
-          <option value="大雅">大雅</option>
-          <option value="神岡">神岡</option>
-          <option value="大肚">大肚</option>
-          <option value="沙鹿">沙鹿</option>
-          <option value="龍井">龍井</option>
-          <option value="梧棲">梧棲</option>
-          <option value="清水">清水</option>
-          <option value="大甲">大甲</option>
-          <option value="外埔">外埔</option>
-          <option value="大安">大安</option>
-        </select>
-      </div>
-      <div class="item">
-        <label>租金</label>
-        <select id="price">
-          <option value="">不限</option>
-          <option value="10000">1萬以內</option>
-          <option value="20000">1-2萬</option>
-          <option value="30000">2-3萬</option>
-          <option value="50000">3-5萬</option>
-          <option value="999999">5萬以上</option>
-        </select>
-      </div>
-      <div class="item">
-        <label>型態</label>
-        <select id="type">
-          <option value="">不限</option>
-          <option value="套房">套房</option>
-          <option value="1房">1房</option>
-          <option value="2房">2房</option>
-          <option value="3房">3房</option>
-          <option value="4房">4房</option>
-          <option value="透天">透天</option>
-          <option value="別墅">別墅</option>
-          <option value="廠房">廠房</option>
-          <option value="店面">店面</option>
-        </select>
-      </div>
-      <div class="item">
-        <label>車位</label>
-        <select id="car">
-          <option value="">不限</option>
-          <option value="平面車位">平面車位</option>
-          <option value="機械車位">機械車位</option>
-        </select>
-      </div>
-      <div class="item">
-        <label>寵物</label>
-        <select id="pet">
-          <option value="">不限</option>
-          <option value="可貓">可貓</option>
-          <option value="可狗">可狗</option>
-          <option value="任何寵物">任何寵物</option>
-        </select>
+  <!-- 導航欄 -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="index.html" class="navbar-brand">誠石不動產</a>
+      
+      <ul class="navbar-links">
+        <li><a href="search.html" class="navbar-link">快速找房</a></li>
+        <li><a href="admin-login.html" class="navbar-link">新增房源</a></li>
+      </ul>
+      
+      <a href="#contact" class="btn btn-outline">聯繫我們</a>
+      
+      <div class="navbar-toggle">
+        <span></span>
+        <span></span>
+        <span></span>
       </div>
     </div>
-    <button class="btn-red" onclick="filter()">篩選物件</button>
+  </nav>
+  
+  <!-- 移動菜單 -->
+  <div class="mobile-menu">
+    <button class="mobile-menu-close">✕</button>
+    <div class="mobile-menu-links">
+      <a href="search.html" class="mobile-menu-link">快速找房</a>
+      <a href="admin-login.html" class="mobile-menu-link">新增房源</a>
+      <a href="#contact" class="mobile-menu-link">聯繫我們</a>
+    </div>
   </div>
+  
+  <div class="overlay"></div>
+  
+  <!-- 主橫幅 -->
+  <section class="hero">
+    <div class="hero-content">
+      <h1 class="hero-title">真正的資產·不該交給隨便的人管理</h1>
+      <p class="hero-subtitle">讓專業·決定您的資產高度</p>
+      <div class="hero-buttons">
+        <a href="search.html" class="btn btn-primary btn-lg">開始找房</a>
+      </div>
+    </div>
+  </section>
+  
+  <!-- 精選房源 -->
+  <section id="featured" class="featured-section" style="padding: var(--spacing-4xl) 0; background: var(--color-white);">
+    <div class="container">
+      <div style="text-align: center; margin-bottom: var(--spacing-3xl);">
+        <h2 style="font-size: var(--font-size-3xl); margin-bottom: var(--spacing-md); color: var(--color-primary);">精選房源</h2>
+        <p style="color: var(--color-text-light);">為您推薦台中最優質的租屋選擇</p>
+      </div>
+      
+      <div id="featuredList" class="grid grid-cols-4">
+        <!-- 由 JS 動態載入 -->
+      </div>
+      
+      <div style="text-align: center; margin-top: var(--spacing-3xl);">
+        <a href="search.html" class="btn btn-outline" style="color: var(--color-primary); border-color: var(--color-primary);">查看更多房源</a>
+      </div>
+    </div>
+  </section>
+  
+  <!-- 頁腳 -->
+  <footer id="contact" class="footer">
+    <div class="container">
+      <div class="grid grid-cols-4">
+        <div>
+          <h4 class="footer-section-title">關於我們</h4>
+          <div class="footer-links">
+            <a href="#" class="footer-link">公司簡介</a>
+            <a href="#" class="footer-link">服務理念</a>
+            <a href="#" class="footer-link">團隊介紹</a>
+            <a href="#" class="footer-link">最新消息</a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="footer-section-title">租屋服務</h4>
+          <div class="footer-links">
+            <a href="search.html" class="footer-link">快速找房</a>
+            <a href="#" class="footer-link">房源管理</a>
+            <a href="#" class="footer-link">租約服務</a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="footer-section-title">客戶支援</h4>
+          <div class="footer-links">
+            <a href="#" class="footer-link">常見問題</a>
+            <a href="#" class="footer-link">使用指南</a>
+            <a href="#" class="footer-link">意見回饋</a>
+          </div>
+        </div>
+        
+        <div>
+          <h4 class="footer-section-title">聯繫方式</h4>
+          <div class="footer-contact-item">
+            <span>📞</span>
+            <span>0936-890-239</span>
+          </div>
+          <div class="footer-contact-item">
+            <span>💬</span>
+            <span>Line ID：zico0511</span>
+          </div>
+          <div class="footer-contact-item">
+            <span>📍</span>
+            <span>臺中市沙鹿區三鹿里向上路六段736號1樓</span>
+          </div>
+          
+          <div class="footer-social">
+            <a href="#" class="footer-social-link">📘</a>
+            <a href="#" class="footer-social-link">📷</a>
+            <a href="#" class="footer-social-link">🐦</a>
+          </div>
+        </div>
+      </div>
+      
+      <div class="footer-bottom">
+        <p>&copy; 2026 誠石不動產. 版權所有.</p>
+        <p style="margin-top:5px;">不動產經紀業許可證號：(113)登字第458761</p>
+      </div>
+    </div>
+  </footer>
 
-  <div class="house-grid" id="houseList"></div>
-</div>
-
-<div class="footer">
-  <p>誠石不動產 © 2025 版權所有</p>
-  <p>台中市沙鹿區向上路六段736號</p>
-</div>
-
-<div id="lightbox" class="hide">
-  <span class="close" onclick="closeLB()">×</span>
-  <span class="prev" onclick="prev()">‹</span>
-  <img id="lbImg" class="hide">
-  <video id="lbVideo" class="hide" controls></video>
-  <span class="next" onclick="next()">›</span>
-</div>
-
-<script>
-let currentList = [], currentIndex = 0, currentType = '';
-
-function load(){
-  const data = JSON.parse(localStorage.getItem("houses")||"[]");
-  const box = document.getElementById("houseList");
-  box.innerHTML = "";
-  data.forEach((item,i)=>{
-    const c = document.createElement("div");
-    c.className = "card";
-    c.dataset.area = item.area;
-    c.dataset.price = item.rent;
-    c.dataset.type = item.type;
-    c.dataset.car = item.car;
-    c.dataset.pet = item.pet;
-
-    let media = '';
-    if(item.video){
-      media = `<video src="${item.video}" controls height="220"></video>`;
-    }else if(item.imgs?.length){
-      media = `<img src="${item.imgs[0]}" onclick="openMedia(${i},'img',0)">`;
+  <script>
+    // 導航欄滾動
+    function handleNavbarScroll() {
+      const navbar = document.querySelector('.navbar');
+      if (window.scrollY > 50) {
+        navbar.classList.add('scrolled');
+      } else {
+        navbar.classList.remove('scrolled');
+      }
     }
 
-    let thumbs = '';
-    if(item.imgs?.length){
-      thumbs+='<div class="thumb-box">';
-      item.imgs.forEach((src,j)=>{
-        thumbs+=`<img src="${src}" class="thumb" onclick="openMedia(${i},'img',${j})">`;
+    // 行動選單
+    function initMobileMenu() {
+      const toggle = document.querySelector('.navbar-toggle');
+      const mobileMenu = document.querySelector('.mobile-menu');
+      const overlay = document.querySelector('.overlay');
+      const closeBtn = document.querySelector('.mobile-menu-close');
+      
+      function openMenu() {
+        mobileMenu.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+      
+      function closeMenu() {
+        mobileMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      
+      toggle?.addEventListener('click', openMenu);
+      closeBtn?.addEventListener('click', closeMenu);
+      overlay?.addEventListener('click', closeMenu);
+      
+      document.querySelectorAll('.mobile-menu-link').forEach(link => {
+        link.addEventListener('click', closeMenu);
       });
-      thumbs+='</div>';
     }
 
-    let mapLink = "";
-    if(item.addr){
-      const gmap = "https://www.google.com.tw/maps/place/" + encodeURIComponent(item.addr);
-      mapLink = `<a href="${gmap}" target="_blank">📍 查看房屋地圖位置</a>`;
+    // 平滑滾動
+    function initSmoothScroll() {
+      document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+        anchor.addEventListener('click', function (e) {
+          e.preventDefault();
+          const target = document.querySelector(this.getAttribute('href'));
+          if (target) {
+            target.scrollIntoView({ behavior: 'smooth', block: 'start' });
+          }
+        });
+      });
     }
 
-    c.innerHTML = `
-      <div class="media">${media}</div>
-      ${thumbs}
-      <div class="card-body">
-        <div class="price">${parseInt(item.rent).toLocaleString()} 元/月</div>
-        <div class="title">${item.title}</div>
-        <div class="addr">${item.addr}</div>
-        <div class="detail">${item.type}｜${item.ping}坪</div>
-        <div class="detail">車位：${item.car}｜寵物：${item.pet}</div>
-        <div class="map-box">${mapLink}</div>
-      </div>`;
-    box.appendChild(c);
-  });
-}
+    // 精選房源載入
+    function loadFeaturedHouses() {
+      const houses = JSON.parse(localStorage.getItem('houses') || '[]');
+      const container = document.getElementById('featuredList');
+      
+      if (houses.length === 0) {
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-light);">目前暫無精選房源，歡迎隨時回來查看！</div>';
+        return;
+      }
+      
+      // 取前 4 筆作為精選
+      const featured = houses.slice(0, 4);
+      
+      container.innerHTML = featured.map(house => `
+        <div class="house-card" onclick="location.href='search.html'">
+          <div class="house-img-container">
+            <img src="${(house.photos && house.photos[0]) || 'https://via.placeholder.com/400x300?text=無圖片'}" class="house-img" alt="${house.title}">
+            <div class="house-badge">${house.area}</div>
+          </div>
+          <div class="house-body">
+            <h3 class="house-title">${house.title}</h3>
+            <div class="house-info">
+              <span>${house.type}｜${house.room}</span>
+              <span>${house.size} 坪</span>
+            </div>
+            <div class="house-price">${house.price} <span>元/月</span></div>
+          </div>
+        </div>
+      `).join('');
+    }
 
-function filter(){
-  const a = document.getElementById("area").value;
-  const p = document.getElementById("price").value;
-  const t = document.getElementById("type").value;
-  const car = document.getElementById("car").value;
-  const pet = document.getElementById("pet").value;
-  document.querySelectorAll(".card").forEach(c=>{
-    let ok = true;
-    if(a && c.dataset.area!==a) ok=false;
-    if(p && parseInt(c.dataset.price)>parseInt(p)) ok=false;
-    if(t && !c.dataset.type.includes(t)) ok=false;
-    if(car && c.dataset.car!==car) ok=false;
-    if(pet && c.dataset.pet!==pet) ok=false;
-    c.style.display = ok?"block":"none";
-  });
-}
-
-function openMedia(idx,type,subIdx){
-  const d = JSON.parse(localStorage.getItem("houses"));
-  currentList = d[idx];
-  currentIndex = subIdx;
-  currentType = type;
-  const lbImg = document.getElementById("lbImg");
-  const lbVid = document.getElementById("lbVideo");
-  if(type==='img'){
-    lbImg.src = currentList.imgs[subIdx];
-    lbImg.classList.remove("hide");
-    lbVid.classList.add("hide");
-  }else{
-    lbVid.src = currentList.video;
-    lbVid.classList.remove("hide");
-    lbImg.classList.add("hide");
-  }
-  document.getElementById("lightbox").classList.remove("hide");
-}
-
-function closeLB(){
-  document.getElementById("lightbox").classList.add("hide");
-  document.getElementById("lbVideo").pause();
-}
-
-function prev(){
-  if(currentType!=='img')return;
-  currentIndex = (currentIndex-1 + currentList.imgs.length) % currentList.imgs.length;
-  document.getElementById("lbImg").src = currentList.imgs[currentIndex];
-}
-
-function next(){
-  if(currentType!=='img')return;
-  currentIndex = (currentIndex+1) % currentList.imgs.length;
-  document.getElementById("lbImg").src = currentList.imgs[currentIndex];
-}
-
-window.onload=load;
-</script>
+    document.addEventListener('DOMContentLoaded', () => {
+      initMobileMenu();
+      initSmoothScroll();
+      loadFeaturedHouses();
+      window.addEventListener('scroll', handleNavbarScroll);
+      handleNavbarScroll();
+    });
+  </script>
 </body>
 </html>
