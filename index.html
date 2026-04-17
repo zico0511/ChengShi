@@ -649,7 +649,15 @@
     </div>
   </footer>
 
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
   <script>
+    // 初始化 Firebase
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+
     // 導航欄滾動
     function handleNavbarScroll() {
       const navbar = document.querySelector('.navbar');
@@ -701,35 +709,41 @@
       });
     }
 
-    // 精選房源載入
-    function loadFeaturedHouses() {
-      const houses = JSON.parse(localStorage.getItem('houses') || '[]');
+    // 精選房源載入 (改為從雲端抓取)
+    async function loadFeaturedHouses() {
       const container = document.getElementById('featuredList');
-      
-      if (houses.length === 0) {
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-light);">目前暫無精選房源，歡迎隨時回來查看！</div>';
-        return;
-      }
-      
-      // 取前 4 筆作為精選
-      const featured = houses.slice(0, 4);
-      
-      container.innerHTML = featured.map(house => `
-        <div class="house-card" onclick="location.href='search.html'">
-          <div class="house-img-container">
-            <img src="${(house.photos && house.photos[0]) || 'https://via.placeholder.com/400x300?text=無圖片'}" class="house-img" alt="${house.title}">
-            <div class="house-badge">${house.area}</div>
-          </div>
-          <div class="house-body">
-            <h3 class="house-title">${house.title}</h3>
-            <div class="house-info">
-              <span>${house.type}｜${house.room}</span>
-              <span>${house.size} 坪</span>
+      container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">正在載入精選房源...</div>';
+
+      try {
+        // 取最後 4 筆作為精選（最新新增的）
+        const snapshot = await db.collection('houses').orderBy('createdAt', 'desc').limit(4).get();
+        const featured = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        
+        if (featured.length === 0) {
+          container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-text-light);">目前暫無精選房源，歡迎隨時回來查看！</div>';
+          return;
+        }
+        
+        container.innerHTML = featured.map(house => `
+          <div class="house-card" onclick="location.href='search.html'">
+            <div class="house-img-container">
+              <img src="${(house.photos && house.photos[0]) || 'https://via.placeholder.com/400x300?text=無圖片'}" class="house-img" alt="${house.title}">
+              <div class="house-badge">${house.area}</div>
             </div>
-            <div class="house-price">${house.price} <span>元/月</span></div>
+            <div class="house-body">
+              <h3 class="house-title">${house.title}</h3>
+              <div class="house-info">
+                <span>${house.type}｜${house.room}</span>
+                <span>${house.size} 坪</span>
+              </div>
+              <div class="house-price">${house.price} <span>元/月</span></div>
+            </div>
           </div>
-        </div>
-      `).join('');
+        `).join('');
+      } catch (err) {
+        console.error("載入失敗:", err);
+        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger);">載入失敗，請稍後再試。</div>';
+      }
     }
 
     document.addEventListener('DOMContentLoaded', () => {

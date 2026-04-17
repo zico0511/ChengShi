@@ -111,6 +111,17 @@
       </table>
     </div>
   </div>
+
+  <!-- 部署教學區塊 -->
+  <div class="admin-section" style="background: #f0f7ff; border: 1px solid #cce5ff;">
+    <h3 style="color: #004085; margin-bottom: 1rem;">🌐 如何讓其他人也看到您的房源？</h3>
+    <p style="font-size: 0.95rem; color: #004085; line-height: 1.6;">
+      目前網站資料儲存在您的瀏覽器中，其他人看不到。若要正式上線，您需要：<br>
+      1. <b>網站上線：</b> 將這些 HTML 檔案上傳到 <a href="https://www.netlify.com/" target="_blank">Netlify</a> 或 <a href="https://vercel.com/" target="_blank">Vercel</a> (免費且簡單)。<br>
+      2. <b>雲端資料庫：</b> 串接 <a href="https://firebase.google.com/" target="_blank">Google Firebase</a>。這樣您新增的資料才會儲存在雲端，讓所有客戶都能看到。<br>
+      3. <b>大影片處理：</b> 建議將影片上傳到 YouTube 並在後台貼上連結，這樣速度最快且不佔空間。
+    </p>
+  </div>
 </main>
 
 <!-- 新增/編輯 彈窗 -->
@@ -231,13 +242,18 @@
         </div>
 
         <div class="form-group full-width">
-          <label class="form-label">照片 URL (多張請換行)</label>
-          <textarea id="photos" class="form-control" placeholder="請輸入圖片 URL，例如：https://example.com/image1.jpg"></textarea>
+          <label class="form-label">照片上傳 (可多選，單張建議不超過 1MB)</label>
+          <input type="file" id="photoFiles" class="form-control" accept="image/*" multiple>
+          <div id="photoPreview" class="img-preview-grid"></div>
         </div>
 
         <div class="form-group full-width">
-          <label class="form-label">影片 URL (MP4/WebM)</label>
-          <input type="text" id="video" class="form-control" placeholder="請輸入影片 URL">
+          <label class="form-label">影片上傳或外部連結 (建議使用 YouTube/Google Drive 連結，省空間且畫質高)</label>
+          <div style="display: flex; gap: 10px; margin-bottom: 5px;">
+            <input type="file" id="videoFile" class="form-control" accept="video/*" style="flex: 1;">
+            <input type="text" id="videoUrl" class="form-control" placeholder="或在此貼上影片連結 (如 YouTube/雲端硬碟)" style="flex: 2;">
+          </div>
+          <div id="videoPreview" style="margin-top: 10px;"></div>
         </div>
 
         <div class="form-group full-width">
@@ -259,198 +275,276 @@
   <p>&copy; 2026 誠石不動產. 版權所有.</p>
 </footer>
 
-<script>
-  function getHouses() { 
-    let houses = JSON.parse(localStorage.getItem('houses') || '[]');
-    if (houses.length === 0) {
-      // 預設一些測試資料
-      houses = [
-        {
-          title: "台中精華區｜奢華一房一廳｜可貓",
-          area: "西屯區",
-          price: "18500",
-          type: "獨立套房",
-          room: "1房",
-          size: "12",
-          floor: "8F/15F",
-          park: "平面車位",
-          elevator: "有",
-          pet: "可貓",
-        subsidy: "可",
-        internet: "有",
-        cable: "有",
-        gas: "無",
-        features: "有陽台、電梯、可租補",
-          photos: ["https://images.unsplash.com/photo-1522708323590-d24dbb6b0267?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"],
-          desc: "位於西屯區精華地段，交通便利，採光良好，適合上班族或小資族。"
-        },
-        {
-          title: "北屯大四房｜全家首選｜近捷運站",
-          area: "北屯區",
-          price: "35000",
-          type: "整層住家",
-          room: "4房",
-          size: "45",
-          floor: "5F/12F",
-          park: "平面車位",
-          elevator: "有",
-          pet: "不可",
-        subsidy: "禁",
-        internet: "有",
-        cable: "無",
-        gas: "有",
-        features: "電梯、可入籍",
-        photos: ["https://images.unsplash.com/photo-1493809842364-78817add7ffb?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"],
-        desc: "大空間好利用，近捷運站，生活機能極佳。"
-      },
-      {
-        title: "沙鹿靜巷透天｜空間大好規劃｜可狗",
-        area: "沙鹿區",
-        price: "22000",
-        type: "整棟透天",
-        room: "3房",
-        size: "35",
-        floor: "1-3F",
-        park: "機車車位",
-        elevator: "無",
-        pet: "可狗",
-        subsidy: "可",
-        internet: "無",
-        cable: "無",
-        gas: "有",
-        features: "有陽台、可入籍",
-          photos: ["https://images.unsplash.com/photo-1580587771525-78b9dba3b914?ixlib=rb-4.0.3&auto=format&fit=crop&w=800&q=60"],
-          desc: "環境清幽，空間寬寬敞，適合有毛小孩的家庭。"
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
+  <script src="firebase-config.js"></script>
+
+  <script>
+    // 初始化 Firebase (使用 compat 版本以相容現有代碼結構)
+    firebase.initializeApp(firebaseConfig);
+    const db = firebase.firestore();
+    const storage = firebase.storage();
+
+    let houses = []; // 改為從 Firebase 獲取
+
+    async function getHouses() { 
+      const snapshot = await db.collection('houses').orderBy('createdAt', 'desc').get();
+      return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+    }
+
+    // 初始載入
+    async function init() {
+      houses = await getHouses();
+      renderHouseList();
+    }
+
+    let currentPhotos = [];
+    let currentVideo = "";
+
+    async function saveHouses(houseData, id = null) {
+      try {
+        if (id) {
+          await db.collection('houses').doc(id).update({
+            ...houseData,
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
+        } else {
+          await db.collection('houses').add({
+            ...houseData,
+            createdAt: firebase.firestore.FieldValue.serverTimestamp(),
+            updatedAt: firebase.firestore.FieldValue.serverTimestamp()
+          });
         }
-      ];
-      localStorage.setItem('houses', JSON.stringify(houses));
-    }
-    return houses; 
-  }
-
-  let houses = getHouses();
-
-  function saveHouses() {
-    localStorage.setItem('houses', JSON.stringify(houses));
-    renderHouseList();
-  }
-
-  function renderHouseList() {
-    const tbody = document.getElementById('houseTableBody');
-    if (houses.length === 0) {
-      tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-text-light);">目前無任何房源</td></tr>';
-      return;
+        houses = await getHouses();
+        renderHouseList();
+        alert('✅ 房源已成功儲存到雲端！');
+      } catch (e) {
+        console.error(e);
+        alert('❌ 儲存時發生錯誤：' + e.message);
+      }
     }
 
-    tbody.innerHTML = houses.map((house, index) => `
-      <tr>
-        <td>
-          <img src="${(house.photos && house.photos[0]) || 'https://via.placeholder.com/60'}" class="house-thumb">
-        </td>
-        <td style="font-weight: 500;">${house.title}</td>
-        <td>${house.area}</td>
-        <td style="color: var(--color-danger); font-weight: bold;">${house.price}</td>
-        <td>${house.type}</td>
-        <td>
-          <div class="actions">
-            <button class="action-btn edit-btn" onclick="openEditModal(${index})">編輯</button>
-            <button class="action-btn delete-btn" onclick="deleteHouse(${index})">刪除</button>
-          </div>
-        </td>
-      </tr>
-    `).join('');
-  }
-
-  function openAddModal() {
-    document.getElementById('modalTitle').textContent = '新增房源';
-    document.getElementById('houseForm').reset();
-    document.getElementById('houseIndex').value = '';
-    document.getElementById('houseModal').style.display = 'flex';
-  }
-
-  function openEditModal(index) {
-    const house = houses[index];
-    document.getElementById('modalTitle').textContent = '編輯房源';
-    document.getElementById('houseIndex').value = index;
-    
-    document.getElementById('title').value = house.title || '';
-    document.getElementById('area').value = house.area || '';
-    document.getElementById('address').value = house.address || '';
-    document.getElementById('price').value = house.price || '';
-    document.getElementById('type').value = house.type || '';
-    document.getElementById('room').value = house.room || '';
-    document.getElementById('size').value = house.size || '';
-    document.getElementById('floor').value = house.floor || '';
-    document.getElementById('park').value = house.park || '無';
-    document.getElementById('elevator').value = house.elevator || '有';
-    document.getElementById('pet').value = house.pet || '不可';
-    document.getElementById('subsidy').value = house.subsidy || '禁';
-    document.getElementById('internet').value = house.internet || '無';
-    document.getElementById('cable').value = house.cable || '無';
-    document.getElementById('gas').value = house.gas || '無';
-    document.getElementById('features').value = house.features || '';
-    document.getElementById('photos').value = (house.photos || []).join('\n');
-    document.getElementById('video').value = house.video || '';
-    document.getElementById('desc').value = house.desc || '';
-    
-    document.getElementById('houseModal').style.display = 'flex';
-  }
-
-  function closeModal() {
-    document.getElementById('houseModal').style.display = 'none';
-  }
-
-  function deleteHouse(index) {
-    if (confirm('確定要刪除這筆房源嗎？')) {
-      houses.splice(index, 1);
-      saveHouses();
+    // 輔助函數：將檔案上傳到 Firebase Storage
+    async function uploadFile(file, path) {
+      const storageRef = storage.ref(path + '/' + Date.now() + '_' + file.name);
+      const snapshot = await storageRef.put(file);
+      return await snapshot.ref.getDownloadURL();
     }
-  }
 
-  document.getElementById('houseForm').addEventListener('submit', function(e) {
-    e.preventDefault();
-    
-    const index = document.getElementById('houseIndex').value;
-    const houseData = {
-      title: document.getElementById('title').value,
-      area: document.getElementById('area').value,
-      address: document.getElementById('address').value,
-      price: document.getElementById('price').value,
-      type: document.getElementById('type').value,
-      room: document.getElementById('room').value,
-      size: document.getElementById('size').value,
-      floor: document.getElementById('floor').value,
-      park: document.getElementById('park').value,
-      elevator: document.getElementById('elevator').value,
-      pet: document.getElementById('pet').value,
-      subsidy: document.getElementById('subsidy').value,
-      internet: document.getElementById('internet').value,
-      cable: document.getElementById('cable').value,
-      gas: document.getElementById('gas').value,
-      features: document.getElementById('features').value,
-      photos: document.getElementById('photos').value.split('\n').map(s => s.trim()).filter(s => s !== ''),
-      video: document.getElementById('video').value,
-      desc: document.getElementById('desc').value
-    };
+    // 照片選擇處理 (改為立即上傳到 Storage 以節省資料庫空間)
+    document.getElementById('photoFiles').addEventListener('change', async function(e) {
+      const files = Array.from(e.target.files);
+      const loadingMsg = document.createElement('div');
+      loadingMsg.textContent = "正在上傳照片...";
+      document.getElementById('photoPreview').appendChild(loadingMsg);
 
-    if (index === '') {
-      houses.push(houseData);
-    } else {
-      houses[index] = houseData;
+      for (const file of files) {
+        try {
+          const url = await uploadFile(file, 'photos');
+          currentPhotos.push(url);
+        } catch (err) {
+          alert('照片上傳失敗：' + err.message);
+        }
+      }
+      loadingMsg.remove();
+      renderPhotoPreview();
+    });
+
+    // 影片選擇處理
+    document.getElementById('videoFile').addEventListener('change', async function(e) {
+      const file = e.target.files[0];
+      if (file) {
+        const loadingMsg = document.createElement('div');
+        loadingMsg.textContent = "正在上傳影片 (大文件請耐心等候)...";
+        document.getElementById('videoPreview').appendChild(loadingMsg);
+        
+        try {
+          currentVideo = await uploadFile(file, 'videos');
+          document.getElementById('videoUrl').value = ""; 
+          renderVideoPreview();
+        } catch (err) {
+          alert('影片上傳失敗：' + err.message);
+        }
+        loadingMsg.remove();
+      }
+    });
+
+    document.getElementById('videoUrl').addEventListener('input', function(e) {
+      if (this.value) {
+        currentVideo = this.value;
+        document.getElementById('videoFile').value = ""; 
+        renderVideoPreview();
+      }
+    });
+
+    function renderPhotoPreview() {
+      const preview = document.getElementById('photoPreview');
+      preview.innerHTML = currentPhotos.map((src, index) => `
+        <div class="img-preview-item">
+          <img src="${src}">
+          <div class="img-remove" onclick="removePhoto(${index})">×</div>
+        </div>
+      `).join('');
     }
-    
-    saveHouses();
-    closeModal();
-  });
 
-  // 初始渲染
-  renderHouseList();
+    function removePhoto(index) {
+      currentPhotos.splice(index, 1);
+      renderPhotoPreview();
+    }
 
-  // 點擊彈窗外關閉
-  window.onclick = function(event) {
-    const modal = document.getElementById('houseModal');
-    if (event.target == modal) closeModal();
-  }
-</script>
+    function renderVideoPreview() {
+      const preview = document.getElementById('videoPreview');
+      if (currentVideo) {
+        const isDirectVideo = currentVideo.includes('firebasestorage') || currentVideo.endsWith('.mp4') || currentVideo.endsWith('.webm');
+        if (isDirectVideo) {
+          preview.innerHTML = `
+            <video src="${currentVideo}" controls style="max-width: 100%; max-height: 200px; border-radius: 8px;"></video>
+            <button type="button" class="btn btn-danger action-btn" onclick="removeVideo()" style="margin-top: 5px;">移除影片</button>
+          `;
+        } else {
+          preview.innerHTML = `
+            <div style="padding: 10px; background: #e3f2fd; border-radius: 8px; color: #1976d2; font-size: 0.9rem;">
+              📺 已設定外部影片連結：<a href="${currentVideo}" target="_blank" style="word-break: break-all;">${currentVideo}</a>
+            </div>
+            <button type="button" class="btn btn-danger action-btn" onclick="removeVideo()" style="margin-top: 5px;">移除影片</button>
+          `;
+        }
+      } else {
+        preview.innerHTML = '';
+      }
+    }
+
+    function removeVideo() {
+      currentVideo = "";
+      document.getElementById('videoFile').value = "";
+      document.getElementById('videoUrl').value = "";
+      renderVideoPreview();
+    }
+
+    function renderHouseList() {
+      const tbody = document.getElementById('houseTableBody');
+      if (houses.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="6" style="text-align: center; color: var(--color-text-light);">目前無任何房源</td></tr>';
+        return;
+      }
+
+      tbody.innerHTML = houses.map((house, index) => `
+        <tr>
+          <td>
+            <img src="${(house.photos && house.photos[0]) || 'https://via.placeholder.com/60'}" class="house-thumb">
+          </td>
+          <td style="font-weight: 500;">${house.title}</td>
+          <td>${house.area}</td>
+          <td style="color: var(--color-danger); font-weight: bold;">${house.price}</td>
+          <td>${house.type}</td>
+          <td>
+            <div class="actions">
+              <button class="action-btn edit-btn" onclick="openEditModal(${index})">編輯</button>
+              <button class="action-btn delete-btn" onclick="deleteHouse('${house.id}')">刪除</button>
+            </div>
+          </td>
+        </tr>
+      `).join('');
+    }
+
+    function openAddModal() {
+      document.getElementById('modalTitle').textContent = '新增房源 (雲端同步)';
+      document.getElementById('houseForm').reset();
+      document.getElementById('houseIndex').value = '';
+      currentPhotos = [];
+      currentVideo = "";
+      renderPhotoPreview();
+      renderVideoPreview();
+      document.getElementById('houseModal').style.display = 'flex';
+    }
+
+    function openEditModal(index) {
+      const house = houses[index];
+      document.getElementById('modalTitle').textContent = '編輯房源 (雲端同步)';
+      document.getElementById('houseIndex').value = house.id; // 這裡改存文件 ID
+      
+      document.getElementById('title').value = house.title || '';
+      document.getElementById('area').value = house.area || '';
+      document.getElementById('address').value = house.address || '';
+      document.getElementById('price').value = house.price || '';
+      document.getElementById('type').value = house.type || '';
+      document.getElementById('room').value = house.room || '';
+      document.getElementById('size').value = house.size || '';
+      document.getElementById('floor').value = house.floor || '';
+      document.getElementById('park').value = house.park || '無';
+      document.getElementById('elevator').value = house.elevator || '有';
+      document.getElementById('pet').value = house.pet || '不可';
+      document.getElementById('subsidy').value = house.subsidy || '禁';
+      document.getElementById('internet').value = house.internet || '無';
+      document.getElementById('cable').value = house.cable || '無';
+      document.getElementById('gas').value = house.gas || '無';
+      document.getElementById('features').value = house.features || '';
+      document.getElementById('desc').value = house.desc || '';
+      
+      currentPhotos = house.photos || [];
+      currentVideo = house.video || "";
+      renderPhotoPreview();
+      renderVideoPreview();
+      
+      document.getElementById('houseModal').style.display = 'flex';
+    }
+
+    function closeModal() {
+      document.getElementById('houseModal').style.display = 'none';
+    }
+
+    async function deleteHouse(id) {
+      if (confirm('確定要從雲端刪除這筆房源嗎？此操作無法還原。')) {
+        try {
+          await db.collection('houses').doc(id).delete();
+          houses = await getHouses();
+          renderHouseList();
+          alert('✅ 房源已刪除');
+        } catch (err) {
+          alert('刪除失敗：' + err.message);
+        }
+      }
+    }
+
+    document.getElementById('houseForm').addEventListener('submit', async function(e) {
+      e.preventDefault();
+      
+      const id = document.getElementById('houseIndex').value;
+      const houseData = {
+        title: document.getElementById('title').value,
+        area: document.getElementById('area').value,
+        address: document.getElementById('address').value,
+        price: document.getElementById('price').value,
+        type: document.getElementById('type').value,
+        room: document.getElementById('room').value,
+        size: document.getElementById('size').value,
+        floor: document.getElementById('floor').value,
+        park: document.getElementById('park').value,
+        elevator: document.getElementById('elevator').value,
+        pet: document.getElementById('pet').value,
+        subsidy: document.getElementById('subsidy').value,
+        internet: document.getElementById('internet').value,
+        cable: document.getElementById('cable').value,
+        gas: document.getElementById('gas').value,
+        features: document.getElementById('features').value,
+        photos: currentPhotos,
+        video: currentVideo,
+        desc: document.getElementById('desc').value
+      };
+
+      await saveHouses(houseData, id || null);
+      closeModal();
+    });
+
+    // 初始渲染
+    init();
+
+    // 點擊彈窗外關閉
+    window.onclick = function(event) {
+      const modal = document.getElementById('houseModal');
+      if (event.target == modal) closeModal();
+    }
+  </script>
 </body>
 </html>
