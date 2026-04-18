@@ -1,53 +1,54 @@
 // shared.js
 // 包含全站通用的 Firebase 初始化與 UI 邏輯
 
-// 確保 firebaseConfig 已經從 firebase-config.js 載入
-if (typeof firebaseConfig === 'undefined') {
-  console.error("Firebase config not found! Please make sure firebase-config.js is loaded.");
-} else {
-  // 確保 firebase 已定義 (由 HTML 中的 script 標籤提供)
-  if (typeof firebase !== 'undefined') {
-    if (!firebase.apps.length) {
-      try {
-        firebase.initializeApp(firebaseConfig);
-      } catch (err) {
-        console.error("Firebase initialization failed:", err);
+// 1. Firebase 初始化與全域變數掛載
+(function() {
+  function initFirebase() {
+    if (typeof firebase !== 'undefined' && typeof firebaseConfig !== 'undefined') {
+      if (!firebase.apps.length) {
+        try {
+          firebase.initializeApp(firebaseConfig);
+        } catch (err) {
+          console.error("Firebase initialization failed:", err);
+        }
       }
     }
-  } else {
-    console.error("Firebase SDK not found! Please check script tags in HTML.");
   }
-}
 
-// 將常用的 Firebase 服務掛載到 window，確保全站可用
-// 使用 Getter 確保在 SDK 載入後能正確獲取實例
-if (!window.db_initialized) {
-  Object.defineProperty(window, 'db', {
-    get: function() {
-      return (typeof firebase !== 'undefined' && typeof firebase.firestore === 'function') ? firebase.firestore() : null;
-    },
-    configurable: true
-  });
-  Object.defineProperty(window, 'storage', {
-    get: function() {
-      return (typeof firebase !== 'undefined' && typeof firebase.storage === 'function') ? firebase.storage() : null;
-    },
-    configurable: true
-  });
-  Object.defineProperty(window, 'auth', {
-    get: function() {
-      return (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') ? firebase.auth() : null;
-    },
-    configurable: true
-  });
-  window.db_initialized = true;
-}
+  // 立即嘗試初始化
+  initFirebase();
+  
+  // 掛載全域服務，使用 getter 確保始終獲取最新狀態且延遲求值
+  if (!window.db_initialized) {
+    const services = ['db', 'auth', 'storage'];
+    const firebaseMap = { 'db': 'firestore', 'auth': 'auth', 'storage': 'storage' };
+    
+    services.forEach(s => {
+      Object.defineProperty(window, s, {
+        get: function() {
+          if (typeof firebase !== 'undefined' && typeof firebase[firebaseMap[s]] === 'function') {
+            // 如果還沒初始化且有 config，嘗試初始化
+            if (!firebase.apps.length && typeof firebaseConfig !== 'undefined') {
+              firebase.initializeApp(firebaseConfig);
+            }
+            return firebase[firebaseMap[s]]();
+          }
+          return null;
+        },
+        configurable: true
+      });
+    });
+    window.db_initialized = true;
+  }
+})();
 
-// 保留這幾個常數以維持舊代碼相容性 (注意：這會在腳本執行時立即求值)
-// 如果頁面代碼依賴這些常數，請確保在 Firebase 準備好後再使用
-const db = window.db;
-const storage = window.storage;
-const auth = window.auth;
+// 保留這幾個常數以維持舊代碼相容性 (改為使用 getter，避免立即求值失敗)
+Object.defineProperty(window, 'db_const', { get: () => window.db });
+Object.defineProperty(window, 'auth_const', { get: () => window.auth });
+Object.defineProperty(window, 'storage_const', { get: () => window.storage });
+
+// 為了相容性，如果原本代碼使用了 const db = window.db; 這種寫法
+// 我們無法直接讓 const db 變成響應式的，但我們可以確保在頁面腳本執行前，window.db 是可用的。
 
 // 通用 UI 控制
 function handleNavbarScroll() {

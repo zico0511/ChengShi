@@ -319,7 +319,7 @@
     async function getHouses() { 
       try {
         if (!window.db) {
-          console.warn("Firestore db not ready, retrying in 500ms...");
+          console.warn("資料庫未就緒，等待中...");
           await new Promise(resolve => setTimeout(resolve, 500));
           return getHouses();
         }
@@ -327,8 +327,8 @@
         const snapshot = await window.db.collection('houses').get();
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
           .sort((a, b) => {
-            const dateA = a.createdAt?.toDate?.() || new Date(0);
-            const dateB = b.createdAt?.toDate?.() || new Date(0);
+            const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt instanceof Date ? a.createdAt : new Date(0));
+            const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt instanceof Date ? b.createdAt : new Date(0));
             return dateB - dateA;
           });
       } catch (e) {

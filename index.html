@@ -605,7 +605,7 @@
       document.body.style.overflow = ''; 
     }
 
-    // 精選房源載入 (自動顯示租金 3 萬以上，最多 3 筆)
+    // 精選房源載入 (自動顯示租金最高的前 3 筆)
     let featuredHouses = [];
     async function loadFeaturedHouses() {
       const container = document.getElementById('featuredList');
@@ -614,9 +614,9 @@
       container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">正在篩選優質房源...</div>';
 
       try {
-        // 確保 db 已就緒
+        // 確保 db 已就緒，如果沒有就等待並重試
         if (!window.db) {
-          console.warn("Firestore db not ready, retrying in 500ms...");
+          console.log("資料庫尚未就緒，0.5秒後重試...");
           setTimeout(loadFeaturedHouses, 500);
           return;
         }

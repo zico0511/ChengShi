@@ -240,20 +240,17 @@
 
     async function getHouses() { 
       try {
-        console.log("正在嘗試獲取房源資料...");
         if (!window.db) {
-          console.warn("Firestore db not ready, retrying in 500ms...");
+          console.warn("資料庫未就緒，等待中...");
           await new Promise(resolve => setTimeout(resolve, 500));
           return getHouses();
         }
         
         // 獲取所有房源
         const snapshot = await window.db.collection('houses').get();
-        console.log(`獲取成功，共 ${snapshot.docs.length} 筆房源`);
-        
         return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
           .sort((a, b) => {
-            // 更健壯的排序邏輯，處理 Timestamp, Date, 或 missing field
+            // 處理不同的時間格式
             const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt instanceof Date ? a.createdAt : new Date(0));
             const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt instanceof Date ? b.createdAt : new Date(0));
             return dateB - dateA;
