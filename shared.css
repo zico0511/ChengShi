@@ -69,6 +69,30 @@ body { background:var(--color-off-white); color: var(--color-text); line-height:
 .modal-content { background:#fff; width:90%; max-width: 700px; border-radius:16px; padding:25px; max-height:90vh; overflow-y:auto; position: relative; box-shadow: var(--shadow-xl); }
 .modal-close { padding:8px 16px; background:var(--color-danger); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight: 500; }
 
+/* 圖片預覽 (Gallery) */
+.img-preview { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.95); display:none; justify-content:center; align-items:center; z-index:99999; }
+.img-preview-container { position: relative; width: 100%; height: 100%; display: flex; justify-content: center; align-items: center; }
+.img-preview img { max-width:90%; max-height:90%; border-radius: 8px; user-select: none; transition: opacity 0.3s ease; opacity: 1; z-index: 2; }
+.img-preview img.loading { opacity: 0; }
+.img-preview .close { position:absolute; top:20px; right:30px; color:#fff; font-size:40px; cursor:pointer; font-weight: bold; z-index: 100; }
+
+.nav-btn { position: absolute; top: 50%; transform: translateY(-50%); color: #fff; font-size: 50px; cursor: pointer; background: rgba(0,0,0,0.3); padding: 10px 20px; border-radius: 8px; user-select: none; transition: background 0.3s; z-index: 101; }
+.nav-btn:hover { background: rgba(255,255,255,0.2); }
+.prev-btn { left: 20px; }
+.next-btn { right: 20px; }
+
+/* Loading Spinner */
+.spinner { position: absolute; width: 50px; height: 50px; border: 5px solid rgba(255,255,255,0.1); border-top: 5px solid #fff; border-radius: 50%; animation: spin 1s linear infinite; z-index: 1; }
+@keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+
+/* 響應式調整 (針對手機與平板) */
+@media (max-width: 768px) {
+  .nav-btn { font-size: 30px; padding: 15px 10px; background: rgba(0,0,0,0.5); }
+  .prev-btn { left: 5px; }
+  .next-btn { right: 5px; }
+  .img-preview .close { top: 10px; right: 15px; font-size: 30px; }
+}
+
 /* 聯絡按鈕組 (用於詳情) */
 .contact-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
 .btn-line { background: #06C755; color: #fff; }
