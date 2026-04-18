@@ -7,38 +7,9 @@
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
+  <link rel="stylesheet" href="shared.css">
   <style>
-    :root {
-      --color-primary: #667eea;
-      --color-primary-light: #764ba2;
-      --color-white: #ffffff;
-      --color-text: #2d3748;
-      --color-text-light: #718096;
-      --color-off-white: #f7fafc;
-      --color-light-gray: #e2e8f0;
-      --color-danger: #e53e3e;
-      --spacing-sm: 0.5rem;
-      --spacing-md: 0.75rem;
-      --spacing-lg: 1rem;
-      --spacing-xl: 1.5rem;
-      --spacing-2xl: 2rem;
-      --border-radius-lg: 0.5rem;
-      --border-radius-2xl: 1rem;
-      --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
-    }
-    * { margin:0; padding:0; box-sizing:border-box; font-family: 'Noto Sans TC', sans-serif; }
-    body { background:var(--color-off-white); padding-top: 80px; }
-    .container { max-width:1200px; margin:0 auto; padding:0 var(--spacing-lg); }
-    
-    .navbar { position:fixed; top:0; left:0; right:0; background:#fff; padding:1rem; box-shadow:var(--shadow-md); z-index:99; }
-    .navbar .container { display:flex; justify-content:space-between; align-items:center; }
-    .navbar-brand { font-size:1.2rem; font-weight:bold; color:var(--color-primary); text-decoration:none; }
-    .nav-btns { display: flex; gap: 10px; }
-    .btn { padding:0.5rem 1rem; border-radius:var(--border-radius-lg); text-decoration:none; font-size:0.9rem; border: none; cursor: pointer; font-weight: 500; transition: background 0.2s; }
-    .btn-primary { background:var(--color-primary); color:#fff; }
-    .btn-danger { background:var(--color-danger); color:#fff; }
-    .btn-outline { background: transparent; border: 1px solid var(--color-primary); color: var(--color-primary); }
-    
+    body { padding-top: 80px; }
     .admin-section { background:#fff; border-radius:var(--border-radius-2xl); box-shadow:var(--shadow-md); padding:var(--spacing-2xl); margin-bottom: 2rem; }
     .section-title { margin-bottom:var(--spacing-xl); font-size:1.5rem; display: flex; justify-content: space-between; align-items: center; }
     
@@ -270,14 +241,9 @@
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-firestore-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/10.7.1/firebase-storage-compat.js"></script>
   <script src="firebase-config.js"></script>
+  <script src="shared.js"></script>
 
   <script>
-    // 初始化 Firebase (使用 compat 版本以相容現有代碼結構)
-    firebase.initializeApp(firebaseConfig);
-    const db = firebase.firestore();
-    const storage = firebase.storage();
-    const auth = firebase.auth();
-
     // 🔒 安全檢查：監聽登入狀態
     auth.onAuthStateChanged(user => {
       if (!user) {
@@ -373,6 +339,24 @@
         alert("照片還在上傳中，請稍候再點擊儲存！");
         return;
       }
+      
+      // --- 資料驗證 ---
+      if (!houseData.title || houseData.title.trim().length < 5) {
+        alert("❌ 標題必填且至少需要 5 個字");
+        return;
+      }
+      if (!houseData.price || isNaN(houseData.price) || Number(houseData.price) <= 0) {
+        alert("❌ 請輸入有效的租金金額 (必須大於 0)");
+        return;
+      }
+      if (!houseData.area) {
+        alert("❌ 請選擇行政區");
+        return;
+      }
+      if (houseData.photos.length === 0) {
+        if (!confirm("⚠️ 您尚未上傳任何照片，確定要儲存嗎？")) return;
+      }
+      // --- 驗證結束 ---
       
       setBtnLoading(true);
       try {

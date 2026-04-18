@@ -1,0 +1,77 @@
+:root {
+  --color-primary: #667eea;
+  --color-primary-light: #764ba2;
+  --color-white: #ffffff;
+  --color-text: #2d3748;
+  --color-text-light: #718096;
+  --color-off-white: #f7fafc;
+  --color-light-gray: #f1f5f9;
+  --color-danger: #e53e3e;
+  --spacing-xs: 0.25rem;
+  --spacing-sm: 0.5rem;
+  --spacing-md: 0.75rem;
+  --spacing-lg: 1rem;
+  --spacing-xl: 1.5rem;
+  --spacing-2xl: 2rem;
+  --spacing-3xl: 3rem;
+  --spacing-4xl: 4rem;
+  --border-radius-md: 0.375rem;
+  --border-radius-lg: 0.5rem;
+  --border-radius-xl: 0.75rem;
+  --border-radius-2xl: 1rem;
+  --shadow-md: 0 4px 6px -1px rgba(0,0,0,0.1);
+  --shadow-lg: 0 10px 15px -3px rgba(0,0,0,0.1);
+  --shadow-xl: 0 20px 25px -5px rgba(0,0,0,0.1);
+  --font-size-xs: 0.75rem;
+  --font-size-sm: 0.875rem;
+  --font-size-base: 1rem;
+  --font-size-lg: 1.125rem;
+  --font-size-xl: 1.25rem;
+  --font-size-2xl: 1.5rem;
+  --font-size-3xl: 1.875rem;
+  --transition-normal: 0.3s ease;
+  --transition-slow: 0.5s ease;
+}
+
+* { margin:0; padding:0; box-sizing:border-box; font-family: 'Noto Sans TC', sans-serif; }
+body { background:var(--color-off-white); color: var(--color-text); line-height: 1.6; }
+.container { max-width:1200px; margin:0 auto; padding:0 var(--spacing-lg); }
+
+/* 通用按鈕 */
+.btn { padding:0.6rem 1.2rem; border-radius:var(--border-radius-lg); text-decoration:none; font-size:0.95rem; border: none; cursor: pointer; font-weight: 500; transition: all 0.2s; display: inline-flex; align-items: center; justify-content: center; gap: 8px; }
+.btn-primary { background:var(--color-primary); color:#fff; }
+.btn-primary:hover { background: var(--color-primary-light); transform: translateY(-1px); box-shadow: var(--shadow-md); }
+.btn-danger { background:var(--color-danger); color:#fff; }
+.btn-outline { background: transparent; border: 1px solid var(--color-primary); color: var(--color-primary); }
+.btn-outline:hover { background: var(--color-primary); color: #fff; }
+
+/* 通用導航欄 */
+.navbar { position:fixed; top:0; left:0; right:0; background:#fff; padding:1rem 0; box-shadow:var(--shadow-md); z-index:99; transition: all 0.3s; }
+.navbar.scrolled { padding: 0.6rem 0; background: rgba(255, 255, 255, 0.95); backdrop-filter: blur(10px); }
+.navbar .container { display:flex; justify-content:space-between; align-items:center; }
+.navbar-brand { font-size:1.4rem; font-weight:bold; color:var(--color-primary); text-decoration:none; display: flex; align-items: center; gap: 10px; }
+.navbar-links { display: flex; list-style: none; gap: var(--spacing-xl); align-items: center; }
+.navbar-link { text-decoration: none; color: var(--color-text); font-weight: 500; transition: color 0.2s; font-size: 1rem; }
+.navbar-link:hover { color: var(--color-primary); }
+
+/* 通用頁腳 */
+.footer { background:#2d3748; color:#fff; padding: var(--spacing-3xl) 0; margin-top: var(--spacing-4xl); }
+.footer-grid { display: grid; grid-template-columns: repeat(auto-fit, minmax(200px, 1fr)); gap: var(--spacing-2xl); }
+.footer-section-title { font-size: 1.2rem; font-weight: 700; margin-bottom: var(--spacing-lg); color: #fff; }
+.footer-contact-item { display: flex; align-items: center; gap: 10px; margin-bottom: var(--spacing-sm); color: #f8fafc; }
+.footer-links { display: flex; flex-direction: column; gap: var(--spacing-sm); }
+.footer-link { color: #f8fafc; text-decoration: none; transition: color 0.2s; }
+.footer-link:hover { color: var(--color-primary); }
+.footer-bottom { border-top: 1px solid #4a5568; padding-top: var(--spacing-xl); text-align: center; color: #cbd5e0; font-size: 0.9rem; }
+
+/* 通用彈窗 */
+.modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:9999; backdrop-filter: blur(5px); }
+.modal-content { background:#fff; width:90%; max-width: 700px; border-radius:16px; padding:25px; max-height:90vh; overflow-y:auto; position: relative; box-shadow: var(--shadow-xl); }
+.modal-close { padding:8px 16px; background:var(--color-danger); color:#fff; border:none; border-radius:8px; cursor:pointer; font-weight: 500; }
+
+/* 聯絡按鈕組 (用於詳情) */
+.contact-btn-group { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-top: 20px; }
+.btn-line { background: #06C755; color: #fff; }
+.btn-line:hover { background: #05b34c; }
+.btn-phone { background: #3182ce; color: #fff; }
+.btn-phone:hover { background: #2b6cb0; }
