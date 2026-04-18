@@ -78,6 +78,23 @@ const CONTACTS = {
   }
 };
 
+// --- 聯絡我們彈窗控制 ---
+function openContactModal() {
+  const modal = document.getElementById('contactModal');
+  if (modal) {
+    modal.style.display = 'flex';
+    document.body.style.overflow = 'hidden'; 
+  }
+}
+
+function closeContactModal() {
+  const modal = document.getElementById('contactModal');
+  if (modal) {
+    modal.style.display = 'none';
+    document.body.style.overflow = ''; 
+  }
+}
+
 // --- 通用房源詳情彈窗邏輯 ---
 let currentPhotoList = [];
 let currentPhotoIdx = 0;
@@ -186,7 +203,7 @@ function showDetail(house) {
     }
   }
 
-  const addressHtml = house.address ? `<span class="map-link" onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(house.address)}', '_blank')">📍 ${house.address} (點擊導航)</span>` : '未填寫';
+  const addressHtml = house.address ? `<span class="map-link" onclick="window.open('https://www.google.com/maps/search/?api=1&query=${encodeURIComponent(house.address)}', '_blank')"><span style="margin-right:4px;">📍</span>${house.address} (點擊導航)</span>` : '未填寫';
 
   content.innerHTML = `
     ${photosHtml}

@@ -3,7 +3,7 @@
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>快速找房 - 誠石不動產</title>
+  <title>開始找房 - 誠石不動產</title>
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
   <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+TC:wght@300;400;500;700&display=swap" rel="stylesheet">
@@ -38,9 +38,6 @@
     .modal { position:fixed; top:0; left:0; width:100%; height:100%; background:rgba(0,0,0,0.7); display:none; align-items:center; justify-content:center; z-index:9999; }
     .modal-content { background:#fff; max-width:700px; width:90%; border-radius:16px; padding:25px; max-height:90vh; overflow-y:auto; position: relative; }
     .modal-close { padding:8px 16px; background:#e53e3e; color:#fff; border:none; border-radius:8px; cursor:pointer; position: sticky; top: 0; float: right; z-index: 10; }
-    .modal-desc { white-space:pre-wrap; line-height:1.8; margin-top:10px; background: #f8f9fa; padding: 15px; border-radius: 8px; border-left: 4px solid var(--color-primary); }
-    .modal-photos { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:15px; margin-top: 10px; }
-    .modal-photos img { width:100px; height:100px; object-fit:cover; border-radius:8px; cursor:pointer; border: 1px solid #eee; }
     .modal-video video { max-width:100%; border-radius:8px; margin:15px 0; background: #000; display: block; }
     .map-link { color:#007bff; text-decoration:underline; cursor:pointer; font-weight: 500; }
     .map-link:hover { color: #0056b3; }
@@ -62,14 +59,61 @@
   <div class="nav-btn next-btn" onclick="event.stopPropagation(); changeImg(1)">&#10095;</div>
 </div>
 
-<nav class="navbar">
+<nav class="navbar scrolled">
   <div class="container">
     <a href="index.html" class="navbar-brand">誠石不動產</a>
-    <div onclick="event.stopPropagation()">
-      <a href="index.html" class="back-btn">← 回首頁</a>
+    <div style="display: flex; gap: 15px; align-items: center;">
+      <a href="map.html" class="btn btn-outline btn-sm" style="padding: 0.4rem 0.8rem; font-size: 0.85rem;">🗺️ 地圖找房</a>
+      <a href="index.html" class="back-btn" style="color: var(--color-primary); text-decoration: none; font-weight: 500;">← 回首頁</a>
     </div>
   </div>
 </nav>
+  
+  <!-- 移動菜單 -->
+  <div class="mobile-menu">
+    <button class="mobile-menu-close">✕</button>
+    <div class="mobile-menu-links">
+      <a href="javascript:void(0)" class="mobile-menu-link" onclick="closeMobileMenu(); openContactModal()">聯繫我們</a>
+    </div>
+  </div>
+  <div class="overlay"></div>
+
+  <!-- 聯絡我們彈窗 -->
+  <div id="contactModal" class="contact-modal" onclick="closeContactModal()">
+    <div class="contact-modal-content" onclick="event.stopPropagation()">
+      <button class="contact-modal-close" onclick="closeContactModal()">✕</button>
+      <h2 style="color: var(--color-primary); margin-bottom: var(--spacing-sm); font-size: 1.8rem;">歡迎諮詢</h2>
+      <p style="color: var(--color-text-light); margin-bottom: var(--spacing-lg);">誠石不動產專業團隊為您服務</p>
+      
+      <div class="contact-grid">
+        <!-- 許先生 -->
+        <div class="contact-card">
+          <div class="qr-code">
+            <img src="qr-hsu.png" alt="許先生 Line QR">
+          </div>
+          <h3 class="contact-name">許先生</h3>
+          <div class="contact-info-item">💬 <strong>Line ID：</strong>zico0511</div>
+          <div class="contact-info-item">📞 <strong>電話：</strong><a href="tel:0936890239">0936-890-239</a></div>
+          <a href="https://line.me/ti/p/~zico0511" target="_blank" class="btn btn-outline" style="width: 100%; margin-top: 10px; border-color: #06C755; color: #06C755;">加 Line 聯繫</a>
+        </div>
+
+        <!-- 林主任 -->
+        <div class="contact-card">
+          <div class="qr-code">
+            <img src="qr-lin.png" alt="林主任 Line QR">
+          </div>
+          <h3 class="contact-name">林主任</h3>
+          <div class="contact-info-item">💬 <strong>Line ID：</strong>t0908788922</div>
+          <div class="contact-info-item">📞 <strong>電話：</strong><a href="tel:0908788922">0908-788-922</a></div>
+          <a href="https://line.me/ti/p/~t0908788922" target="_blank" class="btn btn-outline" style="width: 100%; margin-top: 10px; border-color: #06C755; color: #06C755;">加 Line 聯繫</a>
+        </div>
+      </div>
+      
+      <div style="margin-top: var(--spacing-xl); font-size: 0.9rem; color: var(--color-text-light); border-top: 1px solid var(--color-light-gray); padding-top: 15px; text-align: center;">
+        讓專業決定您的資產高度
+      </div>
+    </div>
+  </div>
 
 <section class="container">
   <div class="search-section">
@@ -174,6 +218,35 @@
   <script src="shared.js"></script>
 
   <script>
+    // 行動選單邏輯
+    function initMobileMenu() {
+      const toggle = document.querySelector('.navbar-toggle');
+      const mobileMenu = document.querySelector('.mobile-menu');
+      const overlay = document.querySelector('.overlay');
+      const closeBtn = document.querySelector('.mobile-menu-close');
+      
+      function openMenu() {
+        mobileMenu.classList.add('active');
+        overlay.classList.add('active');
+        document.body.style.overflow = 'hidden';
+      }
+      
+      function closeMenu() {
+        mobileMenu.classList.remove('active');
+        overlay.classList.remove('active');
+        document.body.style.overflow = '';
+      }
+      
+      toggle?.addEventListener('click', openMenu);
+      closeBtn?.addEventListener('click', closeMenu);
+      overlay?.addEventListener('click', closeMenu);
+      
+      // 點擊連結後自動關閉
+      document.querySelectorAll('.mobile-menu-link').forEach(link => {
+        link.addEventListener('click', closeMenu);
+      });
+    }
+
     const multiBtn = document.getElementById('multiBtn');
     const multiList = document.getElementById('multiList');
     const checkboxes = multiList.querySelectorAll('input');
@@ -414,6 +487,7 @@
   }
 
   window.onload = () => {
+    initMobileMenu();
     loadSearchFilters();
     performSearch(true);
   };

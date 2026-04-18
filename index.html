@@ -77,207 +77,13 @@
       to { opacity: 1; }
     }
 
-    /* 移動端菜單 */
-    .mobile-menu {
-      position: fixed;
-      top: 0;
-      right: -100%;
-      width: 80%;
-      height: 100vh;
-      background-color: var(--color-white);
-      z-index: 1001;
-      padding: var(--spacing-4xl) var(--spacing-2xl);
-      transition: right var(--transition-normal);
-      box-shadow: var(--shadow-xl);
-    }
-
-    .mobile-menu.active {
-      right: 0;
-    }
-
-    .mobile-menu-close {
-      position: absolute;
-      top: var(--spacing-xl);
-      right: var(--spacing-xl);
-      width: 32px;
-      height: 32px;
-      cursor: pointer;
-      background: none;
-      border: none;
-      font-size: var(--font-size-xl);
-      color: var(--color-text);
-    }
-
-    .mobile-menu-links {
-      display: flex;
-      flex-direction: column;
-      gap: var(--spacing-xl);
-      margin-top: var(--spacing-2xl);
-    }
-
-    .mobile-menu-link {
-      color: var(--color-text);
-      font-size: var(--font-size-lg);
-      text-decoration: none;
-      padding-bottom: var(--spacing-md);
-      border-bottom: 1px solid var(--color-border-light);
-      transition: color var(--transition-fast);
-    }
-
-    .mobile-menu-link:hover {
-      color: var(--color-primary);
-    }
-
-    .overlay {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100vh;
-      background-color: rgba(0, 0, 0, 0.5);
-      z-index: 1000;
-      opacity: 0;
-      visibility: hidden;
-      transition: opacity var(--transition-normal), visibility var(--transition-normal);
-    }
-
-    .overlay.active {
-      opacity: 1;
-      visibility: visible;
-    }
-
-    .navbar-toggle {
-      display: none;
-      flex-direction: column;
-      justify-content: space-between;
-      width: 24px;
-      height: 18px;
-      cursor: pointer;
-    }
-
-    .navbar-toggle span {
-      display: block;
-      width: 100%;
-      height: 2px;
-      background-color: var(--color-white);
-      transition: background-color var(--transition-fast);
-    }
-
-    .navbar.scrolled .navbar-toggle span {
-      background-color: var(--color-text);
-    }
-
     .fade-in {
       opacity: 0;
       animation: fadeIn 0.6s ease forwards;
     }
 
-    /* 聯絡我們彈窗樣式 */
-    .contact-modal {
-      position: fixed;
-      top: 0;
-      left: 0;
-      width: 100%;
-      height: 100%;
-      background: rgba(0, 0, 0, 0.8);
-      display: none;
-      align-items: center;
-      justify-content: center;
-      z-index: 2000;
-      backdrop-filter: blur(5px);
-    }
-
-    .contact-modal-content {
-      background: var(--color-white);
-      width: 90%;
-      max-width: 800px;
-      border-radius: var(--border-radius-2xl);
-      padding: var(--spacing-2xl);
-      position: relative;
-      box-shadow: var(--shadow-xl);
-      text-align: center;
-      max-height: 90vh;
-      overflow-y: auto;
-      -webkit-overflow-scrolling: touch;
-    }
-
-    .contact-modal-close {
-      position: absolute;
-      top: var(--spacing-lg);
-      right: var(--spacing-lg);
-      font-size: 1.5rem;
-      cursor: pointer;
-      color: var(--color-text-light);
-      background: none;
-      border: none;
-    }
-
-    .contact-grid {
-      display: grid;
-      grid-template-columns: 1fr 1fr;
-      gap: var(--spacing-2xl);
-      margin-top: var(--spacing-xl);
-    }
-
-    .contact-card {
-      padding: var(--spacing-xl);
-      border: 1px solid var(--color-light-gray);
-      border-radius: var(--border-radius-xl);
-      background: var(--color-off-white);
-      transition: transform 0.3s;
-    }
-
-    .contact-card:hover {
-      transform: translateY(-5px);
-      border-color: var(--color-primary);
-    }
-
-    .qr-code {
-      width: 180px;
-      height: 180px;
-      background: #eee;
-      margin: 0 auto var(--spacing-lg);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      border-radius: var(--border-radius-lg);
-      overflow: hidden;
-    }
-
-    .qr-code img {
-      width: 100%;
-      height: 100%;
-      object-fit: cover;
-    }
-
-    .contact-name {
-      font-size: var(--font-size-xl);
-      font-weight: 700;
-      color: var(--color-primary);
-      margin-bottom: var(--spacing-sm);
-    }
-
-    .contact-info-item {
-      font-size: var(--font-size-base);
-      color: var(--color-text);
-      margin-bottom: var(--spacing-xs);
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-    }
-
-    @media (max-width: 600px) {
-      .contact-grid { grid-template-columns: 1fr; }
-      .contact-modal-content { padding: var(--spacing-xl) var(--spacing-lg); width: 95%; }
-      .qr-code { width: 150px; height: 150px; }
-    }
-
     /* 響應式設計 */
     @media (max-width: 768px) {
-      .navbar-links { display: none; }
-      .navbar-toggle { display: flex; }
-      
       .hero-content {
         margin-left: 5%;
         max-width: 90%;
@@ -404,42 +210,22 @@
 
   <!-- 導航欄 -->
   <nav class="navbar">
-    <div class="container">
-      <a href="index.html" class="navbar-brand">誠石不動產</a>
-      
-      <ul class="navbar-links">
-        <li><a href="search.html" class="navbar-link">快速找房</a></li>
-        <li><a href="admin-login.html" class="navbar-link">新增房源</a></li>
-      </ul>
-      
-      <button class="btn btn-outline" onclick="openContactModal()">聯繫我們</button>
-      
-      <div class="navbar-toggle">
-        <span></span>
-        <span></span>
-        <span></span>
-      </div>
-    </div>
-  </nav>
-  
-  <!-- 移動菜單 -->
-  <div class="mobile-menu">
-    <button class="mobile-menu-close">✕</button>
-    <div class="mobile-menu-links">
-      <a href="search.html" class="mobile-menu-link">快速找房</a>
-      <a href="admin-login.html" class="mobile-menu-link">新增房源</a>
-      <a href="javascript:void(0)" class="mobile-menu-link" onclick="openContactModal()">聯繫我們</a>
-    </div>
+  <div class="container">
+    <a href="index.html" class="navbar-brand">誠石不動產</a>
+    <!-- 僅保留聯繫我們按鈕 -->
+    <button class="btn btn-outline" onclick="openContactModal()">聯繫我們</button>
   </div>
+</nav>
   
+  <!-- 導航欄已簡化，移除移動選單 -->
   <div class="overlay"></div>
 
   <!-- 聯絡我們彈窗 -->
   <div id="contactModal" class="contact-modal" onclick="closeContactModal()">
     <div class="contact-modal-content" onclick="event.stopPropagation()">
       <button class="contact-modal-close" onclick="closeContactModal()">✕</button>
-      <h2 style="color: var(--color-primary); margin-bottom: var(--spacing-md);">歡迎諮詢</h2>
-      <p style="color: var(--color-text-light);">請掃描下方 QR Code 加入 Line 或撥打電話聯繫</p>
+      <h2 style="color: var(--color-primary); margin-bottom: var(--spacing-sm); font-size: 1.8rem;">歡迎諮詢</h2>
+      <p style="color: var(--color-text-light); margin-bottom: var(--spacing-lg);">誠石不動產專業團隊為您服務</p>
       
       <div class="contact-grid">
         <!-- 許先生 -->
@@ -448,8 +234,9 @@
             <img src="qr-hsu.png" alt="許先生 Line QR">
           </div>
           <h3 class="contact-name">許先生</h3>
-          <div class="contact-info-item"><span>💬 Line ID：</span><strong>zico0511</strong></div>
-          <div class="contact-info-item"><span>📞 電話：</span><strong><a href="tel:0936890239" style="text-decoration: none; color: inherit;">0936-890-239</a></strong></div>
+          <div class="contact-info-item">💬 <strong>Line ID：</strong>zico0511</div>
+          <div class="contact-info-item">📞 <strong>電話：</strong><a href="tel:0936890239">0936-890-239</a></div>
+          <a href="https://line.me/ti/p/~zico0511" target="_blank" class="btn btn-outline" style="width: 100%; margin-top: 10px; border-color: #06C755; color: #06C755;">加 Line 聯繫</a>
         </div>
 
         <!-- 林主任 -->
@@ -458,13 +245,14 @@
             <img src="qr-lin.png" alt="林主任 Line QR">
           </div>
           <h3 class="contact-name">林主任</h3>
-          <div class="contact-info-item"><span>💬 Line ID：</span><strong>t0908788922</strong></div>
-          <div class="contact-info-item"><span>📞 電話：</span><strong><a href="tel:0908788922" style="text-decoration: none; color: inherit;">0908-788-922</a></strong></div>
+          <div class="contact-info-item">💬 <strong>Line ID：</strong>t0908788922</div>
+          <div class="contact-info-item">📞 <strong>電話：</strong><a href="tel:0908788922">0908-788-922</a></div>
+          <a href="https://line.me/ti/p/~t0908788922" target="_blank" class="btn btn-outline" style="width: 100%; margin-top: 10px; border-color: #06C755; color: #06C755;">加 Line 聯繫</a>
         </div>
       </div>
       
-      <div style="margin-top: var(--spacing-xl); font-size: 0.85rem; color: var(--color-text-light);">
-        誠石不動產｜讓專業決定您的資產高度
+      <div style="margin-top: var(--spacing-xl); font-size: 0.9rem; color: var(--color-text-light); border-top: 1px solid var(--color-light-gray); padding-top: 15px;">
+        讓專業決定您的資產高度
       </div>
     </div>
   </div>
@@ -476,6 +264,7 @@
       <p class="hero-subtitle">讓專業·決定您的資產高度</p>
       <div class="hero-buttons">
         <a href="search.html" class="btn btn-primary btn-lg">開始找房</a>
+        <a href="map.html" class="btn btn-outline btn-lg" style="background: white; color: var(--color-primary);">地圖找房</a>
       </div>
     </div>
   </section>
@@ -493,7 +282,7 @@
       </div>
       
       <div style="text-align: center; margin-top: var(--spacing-3xl);">
-        <a href="search.html" class="btn btn-outline" style="color: var(--color-primary); border-color: var(--color-primary);">查看更多房源</a>
+        <a href="map.html" class="btn btn-outline" style="color: var(--color-primary); border-color: var(--color-primary);">查看更多房源</a>
       </div>
     </div>
   </section>
@@ -501,7 +290,7 @@
   <!-- 頁腳 -->
   <footer id="contact" class="footer">
     <div class="container">
-      <div class="grid grid-cols-4">
+      <div class="grid grid-cols-2">
         <div>
           <h4 class="footer-section-title">關於我們</h4>
           <div class="footer-links">
@@ -509,24 +298,6 @@
             <a href="#" class="footer-link">服務理念</a>
             <a href="#" class="footer-link">團隊介紹</a>
             <a href="#" class="footer-link">最新消息</a>
-          </div>
-        </div>
-        
-        <div>
-          <h4 class="footer-section-title">租屋服務</h4>
-          <div class="footer-links">
-            <a href="search.html" class="footer-link">快速找房</a>
-            <a href="#" class="footer-link">房源管理</a>
-            <a href="#" class="footer-link">租約服務</a>
-          </div>
-        </div>
-        
-        <div>
-          <h4 class="footer-section-title">客戶支援</h4>
-          <div class="footer-links">
-            <a href="#" class="footer-link">常見問題</a>
-            <a href="#" class="footer-link">使用指南</a>
-            <a href="#" class="footer-link">意見回饋</a>
           </div>
         </div>
         
@@ -543,12 +314,6 @@
           <div class="footer-contact-item">
             <span>📍</span>
             <span>臺中市沙鹿區向上路六段736號1樓</span>
-          </div>
-          
-          <div class="footer-social">
-            <a href="#" class="footer-social-link">📘</a>
-            <a href="#" class="footer-social-link">📷</a>
-            <a href="#" class="footer-social-link">🐦</a>
           </div>
         </div>
       </div>
@@ -592,17 +357,6 @@
       document.querySelectorAll('.mobile-menu-link').forEach(link => {
         link.addEventListener('click', closeMenu);
       });
-    }
-
-    // 聯絡我們彈窗控制 (已由 shared.js 提供部分內容)
-    function openContactModal() {
-      document.getElementById('contactModal').style.display = 'flex';
-      document.body.style.overflow = 'hidden'; 
-    }
-
-    function closeContactModal() {
-      document.getElementById('contactModal').style.display = 'none';
-      document.body.style.overflow = ''; 
     }
 
     // 精選房源載入 (自動顯示租金最高的前 3 筆)
