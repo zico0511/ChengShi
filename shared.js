@@ -82,7 +82,33 @@ const CONTACTS = {
 let currentPhotoList = [];
 let currentPhotoIdx = 0;
 let touchStartX = 0;
-let touchEndX = 0;
+let touchStartY = 0;
+
+function initImgPreviewListeners() {
+  const previewEl = document.getElementById('imgPreview');
+  if (!previewEl || previewEl.dataset.listenersBound) return;
+
+  previewEl.addEventListener('touchstart', (e) => {
+    touchStartX = e.changedTouches[0].screenX;
+    touchStartY = e.changedTouches[0].screenY;
+  }, { passive: true });
+
+  previewEl.addEventListener('touchend', (e) => {
+    const touchEndX = e.changedTouches[0].screenX;
+    const touchEndY = e.changedTouches[0].screenY;
+    
+    const deltaX = touchEndX - touchStartX;
+    const deltaY = touchEndY - touchStartY;
+    
+    // 確保水平滑動大於垂直滑動，避免誤觸
+    if (Math.abs(deltaX) > Math.abs(deltaY) && Math.abs(deltaX) > 50) {
+      if (deltaX < 0) changeImg(1); // 向左滑，下一張
+      if (deltaX > 0) changeImg(-1); // 向右滑，上一張
+    }
+  }, { passive: true });
+
+  previewEl.dataset.listenersBound = "true";
+}
 
 function openImgPreview(src, photoList) {
   if (!src) return;
@@ -93,16 +119,9 @@ function openImgPreview(src, photoList) {
   const previewEl = document.getElementById('imgPreview');
   if (!previewEl) return;
 
+  initImgPreviewListeners();
   updatePreviewImg();
   previewEl.style.display = 'flex';
-  
-  previewEl.addEventListener('touchstart', (e) => touchStartX = e.changedTouches[0].screenX, false);
-  previewEl.addEventListener('touchend', (e) => {
-    touchEndX = e.changedTouches[0].screenX;
-    const swipeThreshold = 50;
-    if (touchEndX < touchStartX - swipeThreshold) changeImg(1);
-    if (touchEndX > touchStartX + swipeThreshold) changeImg(-1);
-  }, false);
 }
 
 function updatePreviewImg() {

@@ -646,7 +646,7 @@
           return `
             <div class="house-card" onclick="showFeaturedDetail(${index})">
               <div class="house-img-container">
-                <img src="${mainPhoto}" class="house-img" alt="${house.title}" loading="lazy" onclick="event.stopPropagation(); openImgPreview('${mainPhoto}', ${photoListJson})">
+                <img src="${mainPhoto}" class="house-img" alt="${house.title}" loading="lazy" onclick='event.stopPropagation(); openImgPreview("${mainPhoto}", ${photoListJson})'>
                 <div class="house-badge">${house.area || '台中'}</div>
               </div>
               <div class="house-body">
