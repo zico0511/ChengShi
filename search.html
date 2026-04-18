@@ -21,6 +21,9 @@
     .multiselect-list.show { display:block; }
     .multiselect-item { display:flex; align-items:center; gap:6px; padding:5px 0; font-size:0.9rem; cursor:pointer; }
     .btn-search { width:100%; padding:1rem; background:linear-gradient(135deg,var(--color-primary),var(--color-primary-light)); color:#fff; border:none; border-radius:var(--border-radius-lg); font-size:1rem; font-weight:bold; cursor:pointer; }
+    .btn { padding:0.75rem 1.5rem; border-radius:var(--border-radius-lg); font-weight:600; cursor:pointer; transition:all 0.2s; border:none; }
+    .btn-outline { background:transparent; border:1px solid var(--color-primary); color:var(--color-primary); }
+    .btn-outline:hover { background:var(--color-primary); color:#fff; }
     
     .house-list { margin:30px 0; display:grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap:20px; }
     .house-card { background:#fff; padding:0; border-radius:12px; box-shadow:var(--shadow-md); cursor:pointer; overflow:hidden; transition: transform 0.2s; }
@@ -237,35 +240,76 @@
 
     async function getHouses() { 
       try {
-        const snapshot = await db.collection('houses').orderBy('createdAt', 'desc').get();
-        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
+        console.log("正在嘗試獲取房源資料...");
+        if (!window.db) {
+          console.warn("Firestore db not ready, retrying in 500ms...");
+          await new Promise(resolve => setTimeout(resolve, 500));
+          return getHouses();
+        }
+        
+        // 獲取所有房源
+        const snapshot = await window.db.collection('houses').get();
+        console.log(`獲取成功，共 ${snapshot.docs.length} 筆房源`);
+        
+        return snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }))
+          .sort((a, b) => {
+            // 更健壯的排序邏輯，處理 Timestamp, Date, 或 missing field
+            const dateA = a.createdAt?.toDate ? a.createdAt.toDate() : (a.createdAt instanceof Date ? a.createdAt : new Date(0));
+            const dateB = b.createdAt?.toDate ? b.createdAt.toDate() : (b.createdAt instanceof Date ? b.createdAt : new Date(0));
+            return dateB - dateA;
+          });
       } catch (err) {
-        console.error("讀取失敗:", err);
+        console.error("讀取房源失敗:", err);
         return [];
       }
     }
-  function getSelectedFeatures() { return Array.from(checkboxes).filter(c => c.checked).map(c => c.value); }
+
+  function getSelectedFeatures() { 
+    if (typeof checkboxes === 'undefined' || !checkboxes) return [];
+    return Array.from(checkboxes).filter(c => c.checked).map(c => c.value); 
+  }
 
   function showDetailByIndex(index) {
     const house = allFilteredHouses[index];
-    if (house) showDetail(house);
+    if (house) {
+      if (typeof showDetail === 'function') {
+        showDetail(house);
+      } else {
+        console.error("showDetail function not found in shared.js");
+      }
+    }
   }
 
   async function performSearch(isInitial = false) {
     const listEl = document.getElementById('houseList');
+    if (!listEl) return;
+    
     if (isInitial) {
       listEl.innerHTML = '<div class="no-data">正在從雲端載入房源...</div>';
     }
     
-    saveSearchFilters(); // 每次搜尋都存一下
+    saveSearchFilters(); 
     const houses = await getHouses();
 
-    const area = document.getElementById('area').value;
-    const priceRange = document.getElementById('priceRange').value;
-    const customPrice = document.getElementById('customPrice').value.trim();
-    const type = document.getElementById('type').value;
-    const room = document.getElementById('room').value;
-    const park = document.getElementById('park').value;
+    // 確保表單元素存在
+    const areaEl = document.getElementById('area');
+    const priceRangeEl = document.getElementById('priceRange');
+    const customPriceEl = document.getElementById('customPrice');
+    const typeEl = document.getElementById('type');
+    const roomEl = document.getElementById('room');
+    const parkEl = document.getElementById('park');
+
+    if (!areaEl || !priceRangeEl || !customPriceEl || !typeEl || !roomEl || !parkEl) {
+      console.error("部分搜尋表單元素未找到");
+      return;
+    }
+
+    const area = areaEl.value;
+    const priceRange = priceRangeEl.value;
+    const customPrice = customPriceEl.value.trim();
+    const type = typeEl.value;
+    const room = roomEl.value;
+    const park = parkEl.value;
     const features = getSelectedFeatures();
 
     allFilteredHouses = houses.filter(h => {
@@ -312,10 +356,10 @@
   function renderHousePage() {
     const listEl = document.getElementById('houseList');
     const paginationEl = document.getElementById('pagination');
+    if (!listEl || !paginationEl) return;
     
-    const start = 0;
     const end = currentPage * pageSize;
-    const housesToDisplay = allFilteredHouses.slice(start, end);
+    const housesToDisplay = allFilteredHouses.slice(0, end);
 
     if (housesToDisplay.length === 0) {
       listEl.innerHTML = '<div class="no-data">目前尚無符合條件的房源</div>';
@@ -324,8 +368,8 @@
     }
 
     listEl.innerHTML = housesToDisplay.map((h, index) => {
-      const absoluteIndex = start + index;
-      const photoListJson = JSON.stringify(h.photos || []).replace(/'/g, "\\'");
+      const photoListJson = JSON.stringify(h.photos || []).replace(/'/g, "&#39;");
+      const mainPhoto = (h.photos && h.photos[0]) || '';
       
       let tags = [];
       if (h.pet === '可貓' || h.pet === '可貓狗') tags.push('可貓');
@@ -335,9 +379,9 @@
       const tagsHtml = tags.length > 0 ? tags.map(t => `#${t}`).join(' ') : '';
 
       return `
-        <div class="house-card" onclick="showDetailByIndex(${absoluteIndex})">
-          ${h.photos && h.photos[0] ? 
-            `<img src="${h.photos[0]}" class="house-img" loading="lazy" onclick='event.stopPropagation(); openImgPreview("${h.photos[0]}", ${photoListJson})'>` 
+        <div class="house-card" onclick="showDetailByIndex(${index})">
+          ${mainPhoto ? 
+            `<img src="${mainPhoto}" class="house-img" loading="lazy" onclick='event.stopPropagation(); openImgPreview("${mainPhoto}", ${photoListJson})'>` 
             : '<div style="height:180px;background:#eee;display:flex;align-items:center;justify-content:center;color:#999;">無照片</div>'}
           <div class="house-body">
             <div class="house-title">${h.title}</div>
@@ -349,7 +393,6 @@
       `;
     }).join('');
 
-    // 控制「載入更多」按鈕顯示
     if (end < allFilteredHouses.length) {
       paginationEl.style.display = 'block';
     } else {
@@ -357,30 +400,35 @@
     }
   }
 
-  document.getElementById('loadMoreBtn').addEventListener('click', () => {
-    currentPage++;
-    renderHousePage();
-  });
+  // 事件監聽
+  const loadMoreBtn = document.getElementById('loadMoreBtn');
+  if (loadMoreBtn) {
+    loadMoreBtn.addEventListener('click', () => {
+      currentPage++;
+      renderHousePage();
+    });
+  }
 
-  document.getElementById('searchBtn').addEventListener('click', () => performSearch());
+  const searchBtn = document.getElementById('searchBtn');
+  if (searchBtn) {
+    searchBtn.addEventListener('click', () => performSearch());
+  }
 
-  document.getElementById('clearBtn').addEventListener('click', () => {
-    // 重置所有表單
-    document.getElementById('area').value = '';
-    document.getElementById('priceRange').value = '';
-    document.getElementById('customPrice').value = '';
-    document.getElementById('type').value = '';
-    document.getElementById('room').value = '';
-    document.getElementById('park').value = '';
-    checkboxes.forEach(cb => cb.checked = false);
-    updateMultiText();
-    
-    // 清除搜尋記憶
-    sessionStorage.removeItem('rental_search_filters');
-    
-    // 重新搜尋
-    performSearch();
-  });
+  const clearBtn = document.getElementById('clearBtn');
+  if (clearBtn) {
+    clearBtn.addEventListener('click', () => {
+      document.getElementById('area').value = '';
+      document.getElementById('priceRange').value = '';
+      document.getElementById('customPrice').value = '';
+      document.getElementById('type').value = '';
+      document.getElementById('room').value = '';
+      document.getElementById('park').value = '';
+      if (typeof checkboxes !== 'undefined') checkboxes.forEach(cb => cb.checked = false);
+      updateMultiText();
+      sessionStorage.removeItem('rental_search_filters');
+      performSearch();
+    });
+  }
 
   window.onload = () => {
     loadSearchFilters();
@@ -388,8 +436,11 @@
   };
 
   window.onclick = function(event) {
-    // 詳情彈窗點擊外部關閉已整合至 shared.js
-  }
+    const modal = document.getElementById('detailModal');
+    if (event.target == modal) {
+      if (typeof closeModal === 'function') closeModal();
+    }
+  };
   </script>
 </body>
 </html>

@@ -5,12 +5,49 @@
 if (typeof firebaseConfig === 'undefined') {
   console.error("Firebase config not found! Please make sure firebase-config.js is loaded.");
 } else {
-  firebase.initializeApp(firebaseConfig);
+  // 確保 firebase 已定義 (由 HTML 中的 script 標籤提供)
+  if (typeof firebase !== 'undefined') {
+    if (!firebase.apps.length) {
+      try {
+        firebase.initializeApp(firebaseConfig);
+      } catch (err) {
+        console.error("Firebase initialization failed:", err);
+      }
+    }
+  } else {
+    console.error("Firebase SDK not found! Please check script tags in HTML.");
+  }
 }
 
-const db = typeof firebase.firestore === 'function' ? firebase.firestore() : null;
-const storage = typeof firebase.storage === 'function' ? firebase.storage() : null;
-const auth = typeof firebase.auth === 'function' ? firebase.auth() : null;
+// 將常用的 Firebase 服務掛載到 window，確保全站可用
+// 使用 Getter 確保在 SDK 載入後能正確獲取實例
+if (!window.db_initialized) {
+  Object.defineProperty(window, 'db', {
+    get: function() {
+      return (typeof firebase !== 'undefined' && typeof firebase.firestore === 'function') ? firebase.firestore() : null;
+    },
+    configurable: true
+  });
+  Object.defineProperty(window, 'storage', {
+    get: function() {
+      return (typeof firebase !== 'undefined' && typeof firebase.storage === 'function') ? firebase.storage() : null;
+    },
+    configurable: true
+  });
+  Object.defineProperty(window, 'auth', {
+    get: function() {
+      return (typeof firebase !== 'undefined' && typeof firebase.auth === 'function') ? firebase.auth() : null;
+    },
+    configurable: true
+  });
+  window.db_initialized = true;
+}
+
+// 保留這幾個常數以維持舊代碼相容性 (注意：這會在腳本執行時立即求值)
+// 如果頁面代碼依賴這些常數，請確保在 Firebase 準備好後再使用
+const db = window.db;
+const storage = window.storage;
+const auth = window.auth;
 
 // 通用 UI 控制
 function handleNavbarScroll() {

@@ -286,13 +286,23 @@
       .hero-title { font-size: var(--font-size-3xl); }
       .hero-subtitle { font-size: var(--font-size-lg); margin-bottom: var(--spacing-2xl); }
       .hero-buttons { flex-direction: column; align-items: flex-start; }
-      .grid-cols-3 { grid-template-columns: 1fr; }
+      /* 讓精選房源維持橫向三欄 */
+      .grid-cols-3 { 
+        display: grid;
+        grid-template-columns: repeat(3, 1fr); 
+        gap: var(--spacing-sm);
+      }
+      .house-body { padding: var(--spacing-sm); }
+      .house-title { font-size: var(--font-size-sm); }
+      .house-info { font-size: 10px; flex-direction: column; gap: 2px; }
+      .house-price { font-size: var(--font-size-base); }
+      .house-img-container { height: 120px; }
     }
 
-    @media (max-width: 480px) {
-      .hero-title { font-size: var(--font-size-2xl); }
-      .grid-cols-4 { grid-template-columns: 1fr; }
-    }
+    /* 基本網格系統 */
+    .grid { display: grid; gap: var(--spacing-lg); }
+    .grid-cols-3 { grid-template-columns: repeat(3, 1fr); }
+    .grid-cols-4 { grid-template-columns: repeat(4, 1fr); }
 
     /* 房源卡片樣式 */
     .house-card {
@@ -599,14 +609,29 @@
     let featuredHouses = [];
     async function loadFeaturedHouses() {
       const container = document.getElementById('featuredList');
+      if (!container) return;
+      
       container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 20px;">正在篩選優質房源...</div>';
 
       try {
-        const snapshot = await db.collection('houses').orderBy('createdAt', 'desc').get();
+        // 確保 db 已就緒
+        if (!window.db) {
+          console.warn("Firestore db not ready, retrying in 500ms...");
+          setTimeout(loadFeaturedHouses, 500);
+          return;
+        }
+
+        // 讀取所有房源
+        const snapshot = await window.db.collection('houses').get();
         const allHouses = snapshot.docs.map(doc => ({ id: doc.id, ...doc.data() }));
         
+        // 按租金從高到低排序，取前 3 名
         featuredHouses = allHouses
-          .filter(house => parseInt(house.price) >= 30000)
+          .sort((a, b) => {
+            const priceA = parseInt(a.price) || 0;
+            const priceB = parseInt(b.price) || 0;
+            return priceB - priceA;
+          })
           .slice(0, 3); 
         
         if (featuredHouses.length === 0) {
@@ -616,17 +641,19 @@
         
         container.innerHTML = featuredHouses.map((house, index) => {
           const photoListJson = JSON.stringify(house.photos || []).replace(/'/g, "\\'");
+          const mainPhoto = (house.photos && house.photos[0]) || 'https://via.placeholder.com/400x300?text=無圖片';
+          
           return `
             <div class="house-card" onclick="showFeaturedDetail(${index})">
               <div class="house-img-container">
-                <img src="${(house.photos && house.photos[0]) || 'https://via.placeholder.com/400x300?text=無圖片'}" class="house-img" alt="${house.title}" loading="lazy" onclick="event.stopPropagation(); openImgPreview('${house.photos[0]}', ${photoListJson})">
-                <div class="house-badge">${house.area}</div>
+                <img src="${mainPhoto}" class="house-img" alt="${house.title}" loading="lazy" onclick="event.stopPropagation(); openImgPreview('${mainPhoto}', ${photoListJson})">
+                <div class="house-badge">${house.area || '台中'}</div>
               </div>
               <div class="house-body">
                 <h3 class="house-title">${house.title}</h3>
                 <div class="house-info">
-                  <span>${house.type}｜${house.room}</span>
-                  <span>${house.size} 坪</span>
+                  <span>${house.type || '房屋'}｜${house.room || '1房'}</span>
+                  <span>${house.size || 0} 坪</span>
                 </div>
                 <div class="house-price">${house.price} <span>元/月</span></div>
               </div>
@@ -635,7 +662,7 @@
         }).join('');
       } catch (err) {
         console.error("載入失敗:", err);
-        container.innerHTML = '<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger);">載入失敗，請稍後再試。</div>';
+        container.innerHTML = `<div style="grid-column: 1/-1; text-align: center; padding: 40px; color: var(--color-danger);">載入失敗，請稍後再試。<br><small style="color: #999;">${err.message}</small></div>`;
       }
     }
 
