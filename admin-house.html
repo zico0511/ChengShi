@@ -241,11 +241,6 @@
         </div>
 
         <div class="form-group full-width">
-          <label class="form-label">特色條件 (多選，以、隔開)</label>
-          <input type="text" id="features" class="form-control" placeholder="例：有陽台、電梯、可租補、可入籍">
-        </div>
-
-        <div class="form-group full-width">
           <label class="form-label">照片上傳 (可多選，單張建議不超過 1MB)</label>
           <input type="file" id="photoFiles" class="form-control" accept="image/*" multiple>
           <div id="photoPreview" class="img-preview-grid"></div>
@@ -580,7 +575,6 @@
       document.getElementById('internet').value = house.internet || '無';
       document.getElementById('cable').value = house.cable || '無';
       document.getElementById('gas').value = house.gas || '無';
-      document.getElementById('features').value = house.features || '';
       document.getElementById('desc').value = house.desc || '';
       
       currentPhotos = house.photos || [];
@@ -626,7 +620,6 @@
         internet: document.getElementById('internet').value,
         cable: document.getElementById('cable').value,
         gas: document.getElementById('gas').value,
-        features: document.getElementById('features').value,
         photos: currentPhotos,
         desc: document.getElementById('desc').value
       };

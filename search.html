@@ -162,48 +162,14 @@
       </div>
 
       <div class="form-group">
-        <label class="form-label">租屋補助</label>
-        <select id="subsidy" class="form-select">
-          <option value="">不限</option>
-          <option>禁</option><option>可</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">網路</label>
-        <select id="internet" class="form-select">
-          <option value="">不限</option>
-          <option>無</option><option>有</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">第四台</label>
-        <select id="cable" class="form-select">
-          <option value="">不限</option>
-          <option>無</option><option>有</option>
-        </select>
-      </div>
-
-      <div class="form-group">
-        <label class="form-label">天然瓦斯</label>
-        <select id="gas" class="form-select">
-          <option value="">不限</option>
-          <option>無</option><option>有</option>
-        </select>
-      </div>
-
-      <div class="form-group">
         <label class="form-label">特色條件</label>
         <div class="multiselect">
           <button type="button" class="multiselect-btn" id="multiBtn">請選擇</button>
           <div class="multiselect-list" id="multiList">
             <label class="multiselect-item"><input type="checkbox" value="可貓">可貓</label>
             <label class="multiselect-item"><input type="checkbox" value="可狗">可狗</label>
-            <label class="multiselect-item"><input type="checkbox" value="有陽台">有陽台</label>
             <label class="multiselect-item"><input type="checkbox" value="電梯">電梯</label>
             <label class="multiselect-item"><input type="checkbox" value="可租補">可租補</label>
-            <label class="multiselect-item"><input type="checkbox" value="可入籍">可入籍</label>
           </div>
         </div>
       </div>
@@ -270,6 +236,30 @@
   let currentPhotoList = [];
   let currentPhotoIdx = 0;
 
+  let touchStartX = 0;
+  let touchEndX = 0;
+
+  function handleTouchStart(e) {
+    touchStartX = e.changedTouches[0].screenX;
+  }
+
+  function handleTouchEnd(e) {
+    touchEndX = e.changedTouches[0].screenX;
+    handleSwipe();
+  }
+
+  function handleSwipe() {
+    const swipeThreshold = 50; // 最小滑動距離
+    if (touchEndX < touchStartX - swipeThreshold) {
+      // 向左滑，下一張
+      changeImg(1);
+    }
+    if (touchEndX > touchStartX + swipeThreshold) {
+      // 向右滑，前一張
+      changeImg(-1);
+    }
+  }
+
   function openImgPreview(src, photoList) {
     if (!src) return;
     currentPhotoList = photoList || [src];
@@ -277,7 +267,12 @@
     if (currentPhotoIdx === -1) currentPhotoIdx = 0;
     
     updatePreviewImg();
-    document.getElementById('imgPreview').style.display = 'flex';
+    const previewEl = document.getElementById('imgPreview');
+    previewEl.style.display = 'flex';
+    
+    // 綁定觸控事件
+    previewEl.addEventListener('touchstart', handleTouchStart, false);
+    previewEl.addEventListener('touchend', handleTouchEnd, false);
     
     const navBtns = document.querySelectorAll('.nav-btn');
     navBtns.forEach(btn => btn.style.display = currentPhotoList.length > 1 ? 'block' : 'none');
@@ -322,7 +317,11 @@
   }
 
   function closeImgPreview() {
-    document.getElementById('imgPreview').style.display = 'none';
+    const previewEl = document.getElementById('imgPreview');
+    previewEl.style.display = 'none';
+    // 移除觸控事件
+    previewEl.removeEventListener('touchstart', handleTouchStart);
+    previewEl.removeEventListener('touchend', handleTouchEnd);
   }
 
   function openMap(address) {
@@ -427,10 +426,6 @@
     const type = document.getElementById('type').value;
     const room = document.getElementById('room').value;
     const park = document.getElementById('park').value;
-    const subsidy = document.getElementById('subsidy').value;
-    const internet = document.getElementById('internet').value;
-    const cable = document.getElementById('cable').value;
-    const gas = document.getElementById('gas').value;
     const features = getSelectedFeatures();
 
     let filtered = houses.filter(h => {
@@ -439,10 +434,6 @@
       if (type && h.type !== type) return false;
       if (room && h.room !== room) return false;
       if (park && h.park !== park) return false;
-      if (subsidy && (h.subsidy || '禁') !== subsidy) return false;
-      if (internet && (h.internet || '無') !== internet) return false;
-      if (cable && (h.cable || '無') !== cable) return false;
-      if (gas && (h.gas || '無') !== gas) return false;
 
       if (features.length > 0) {
         const hf = (h.features || '').split('、');
